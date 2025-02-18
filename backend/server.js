@@ -9,10 +9,11 @@ import initializeConnection from './server/config/db.js';
 import authRoutes from './server/routes/auth.js';
 import userRoutes from './server/routes/user.js';
 import coordinatorRoutes from './server/routes/coordinator.js';
-import moaRoutes from './server/routes/moa.js'
-import hteRoutes from './server/routes/hte.js'
-import ipRoutes from './server/routes/ip.js'
-import adminRoutes from './server/routes/admin.js'
+import moaRoutes from './server/routes/moa.js';
+import hteRoutes from './server/routes/hte.js';
+import ipRoutes from './server/routes/ip.js';
+import adminRoutes from './server/routes/admin.js';
+import overviewRoutes from './server/routes/overview.js';
 
 dotenv.config();
 
@@ -55,12 +56,12 @@ const startServer = async () => {
     app.use('/api/hte', hteRoutes);
     app.use('/api/ip', ipRoutes);
     app.use('/api/admin', adminRoutes);
+    app.use('/api/overview', overviewRoutes);
 
     // Test Route
     app.get('/', (req, res) => {
       res.send('Hello, world!');
     });
-
 
     // Start Server
     const PORT = process.env.PORT || 3000;

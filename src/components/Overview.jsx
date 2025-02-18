@@ -1,83 +1,59 @@
-import React, { useState } from "react";
-import { Bar, Doughnut } from "react-chartjs-2";
-import { Chart as ChartJS, ArcElement, BarElement, Tooltip, Legend, CategoryScale, LinearScale } from "chart.js";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { Chart as ChartJS, ArcElement, BarElement, Tooltip, Legend, CategoryScale, LinearScale } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
-import { CornerRightUp, CornerLeftDown } from 'lucide-react';
+import { Bar, Doughnut } from 'react-chartjs-2';
 
-
-// Register the required components for Chart.js
 ChartJS.register(ArcElement, BarElement, Tooltip, Legend, CategoryScale, LinearScale, ChartDataLabels);
 
 const Overview = () => {
   const [activeTab, setActiveTab] = useState("HTEs");
   const [clickedBarIndex, setClickedBarIndex] = useState(null);
   const [selectedYear, setSelectedYear] = useState("2020");
-  
-
-  
-
-  const data = {
-    summaryCards: [
-      { title: "Host Training Establishments (HTEs)", value: "7265", change: "+11.01%" },
-      { title: "Memorandum of Agreements (MOAs)", value: "3671", change: "-0.03%" },
-      { title: "On-the-Job Training Coordinators", value: "256", change: "+15.03%" },
-      { title: "Industry Partners", value: "2318", change: "+6.08%" },
-    ],
-  Industrypartnercard: [
-    { STATUS: "NOB 1", percentage: 52.1, color: "#34C759" },
-    { STATUS: "NOB 2", percentage: 22.8, color: "#6750A4" },
-    { STATUS: "NOB 3", percentage: 13.9, color: "#FF2D55" },
-    { STATUS: "Other", percentage: 11.2, color: "#CE93D8" },
-  ],
-    
-
-    natureOfBusinesses: [
-      { category: "Banking", count: 160000 },
-      { category: "IT", count: 200000 },
-      { category: "BPO", count: 140000 },
-      { category: "MFG", count: 243000  },
-      { category: "Corporation", count: 180000  },
-      { category: "Other", count: 100000 },
-    ],
-    moaSTATUS: [
-      { STATUS: "Completed", percentage: 52.1, color: "#31111D"},
-      { STATUS: "Under Review", percentage: 22.8, color: "#630F3C" },
-      { STATUS: "For Revision", percentage: 13.9, color: "#7A1642" },
-      { STATUS: "Other", percentage: 11.2, color: " #FF2D55 " },
-    ],
+  const [data, setData] = useState({
+    summaryCards: [],
+    industryPartnerCard: [], // Fix property name
+    natureOfBusinesses: [],
+    moaSTATUS: [],
     tableData: {
-      HTEs: [
-        { DOC: "00001", COMPANY: "Christine Brooks", ADDRESS: "089 Kutch Green Apt. 448", DATE: "14 Feb 2019", business: "Electric", STATUS: "Completed" },
-        { DOC: "00002", COMPANY: "Rosie Pearson", ADDRESS: "979 Immanuel Ferry Suite 526", DATE: "14 Feb 2019", business: "Book", STATUS: "Processing" },
-        { DOC: "00003", COMPANY: "Darrell Caldwell", ADDRESS: "8587 Frida Ports", DATE: "14 Feb 2019", business: "Medicine", STATUS: "Rejected" },
-        { DOC: "00003", COMPANY: "Darrell Caldwell", ADDRESS: "8587 Frida Ports", DATE: "14 Feb 2019", business: "Medicine", STATUS: "Rejected" },
-        { DOC: "00003", COMPANY: "Darrell Caldwell", ADDRESS: "8587 Frida Ports", DATE: "14 Feb 2019", business: "Medicine", STATUS: "Rejected" },
-        { DOC: "00003", COMPANY: "Darrell Caldwell", ADDRESS: "8587 Frida Ports", DATE: "14 Feb 2019", business: "Medicine", STATUS: "Rejected" },
-      ],
-      "INDUSTRY PARTNERS": [
-        { DOC: "00004", COMPANY: "Tech Innovators", ADDRESS: "45 Silicon Valley", DATE: "10 Mar 2020", business: "Software", STATUS: "Active" },
-        { DOC: "00005", COMPANY: "Green Solutions", ADDRESS: "123 Eco Park", DATE: "20 Jan 2021", business: "Renewables", STATUS: "Inactive" },
-      ],
-      "OJT COORDINATORS": [
-        { DOC: "00006", COMPANY: "Alice Johnson", ADDRESS: "789 Training Ave", DATE: "05 May 2021", business: "OJT Management", STATUS: "Active" },
-        { DOC: "00007", COMPANY: "Mark Smith", ADDRESS: "567 Coordinator Lane", DATE: "15 Jul 2021", business: "OJT Oversight", STATUS: "Inactive" },
-        { DOC: "00003", COMPANY: "Darrell Caldwell", ADDRESS: "8587 Frida Ports", DATE: "14 Feb 2019", business: "Medicine", STATUS: "Rejected" },
-        { DOC: "00003", COMPANY: "Darrell Caldwell", ADDRESS: "8587 Frida Ports", DATE: "14 Feb 2019", business: "Medicine", STATUS: "Rejected" },
-        { DOC: "00003", COMPANY: "Darrell Caldwell", ADDRESS: "8587 Frida Ports", DATE: "14 Feb 2019", business: "Medicine", STATUS: "Rejected" },
-        { DOC: "00003", COMPANY: "Darrell Caldwell", ADDRESS: "8587 Frida Ports", DATE: "14 Feb 2019", business: "Medicine", STATUS: "Rejected" },
-
-      ],
+      HTEs: [],
+      "INDUSTRY PARTNERS": [],
+      "OJT COORDINATORS": [],
     },
-  };
+  });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const summaryCardsResponse = await axios.get('http://localhost:3001/api/overview/summaryCard');
+        const industryPartnerCardResponse = await axios.get('http://localhost:3001/api/overview/industryPartnerCard');
+        const natureOfBusinessesResponse = await axios.get('http://localhost:3001/api/overview/natureOfBusinesses');
+        const moaStatusResponse = await axios.get('http://localhost:3001/api/overview/moaStatus');
+        const tableDataResponse = await axios.get('http://localhost:3001/api/overview/tableData');
+
+        setData({
+          summaryCards: summaryCardsResponse.data,
+          industryPartnerCard: industryPartnerCardResponse.data, // Fix property name
+          natureOfBusinesses: natureOfBusinessesResponse.data,
+          moaSTATUS: moaStatusResponse.data,
+          tableData: tableDataResponse.data,
+        });
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const [clickedCard, setClickedCard] = useState(null);
 
   const doughnutIndustrycardData = {
-    labels: data.Industrypartnercard.map((STATUS) => `${STATUS.STATUS} ${STATUS.percentage}%`),
+    labels: data.industryPartnerCard.map((status) => `${status.STATUS} ${status.percentage}%`), // Fix property name
     datasets: [
       {
-        data: data.Industrypartnercard.map((STATUS) => STATUS.percentage),
-        backgroundColor: data.Industrypartnercard.map((STATUS) => STATUS.color),
+        data: data.industryPartnerCard.map((status) => status.percentage), // Fix property name
+        backgroundColor: data.industryPartnerCard.map((status) => status.color), // Fix property name
         hoverOffset: 5,
       },
     ],
@@ -206,11 +182,11 @@ const Overview = () => {
 
   // Doughnut Chart Data and Options
   const doughnutData = {
-    labels: data.moaSTATUS.map((STATUS) => `${STATUS.STATUS} ${STATUS.percentage}%`),
+    labels: data.moaSTATUS.map((status) => `${status.STATUS} ${status.percentage}%`),
     datasets: [
       {
-        data: data.moaSTATUS.map((STATUS) => STATUS.percentage),
-        backgroundColor: data.moaSTATUS.map((STATUS) => STATUS.color),
+        data: data.moaSTATUS.map((status) => status.percentage),
+        backgroundColor: data.moaSTATUS.map((status) => status.color),
         hoverOffset: 5,
       },
     ],
@@ -400,14 +376,6 @@ const Overview = () => {
     })}
   </div>
 
-
-
-
-
-
-
-
-
       {/* Nature of Businesses and MOA STATUS */}
 <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-4 mb-6 mt-5">
   {/* Bar Chart: Nature of Businesses */}
@@ -430,8 +398,6 @@ const Overview = () => {
     </div>
   </div>
 </div>
-
-
       
         {/* Tabbed Tables */}
       <div className="bg-white shadow rounded-lg p-4 flex h-30 flex-col">
@@ -487,7 +453,7 @@ const Overview = () => {
                   <td className="py-2 px-4">{row.COMPANY}</td>
                   <td className="py-2 px-4">{row.ADDRESS}</td>
                   <td className="py-2 px-4">{row.DATE}</td>
-                  <td className="py-2 px-4">{row.business}</td>
+                  <td className="py-2 px-4">{row.BUSINESS}</td>
                   <td
                     className={`py-2 px-4 text-center rounded-full font-normal ${
                       row.STATUS === "Completed"
