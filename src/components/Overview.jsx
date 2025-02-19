@@ -1,11 +1,10 @@
-import React, { useState } from "react";
-import { Bar, Doughnut } from "react-chartjs-2";
-import { Chart as ChartJS, ArcElement, BarElement, Tooltip, Legend, CategoryScale, LinearScale } from "chart.js";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { Chart as ChartJS, ArcElement, BarElement, Tooltip, Legend, CategoryScale, LinearScale } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
+import { Bar, Doughnut } from 'react-chartjs-2';
 import { CornerRightUp, CornerLeftDown } from 'lucide-react';
 
-
-// Register the required components for Chart.js
 ChartJS.register(ArcElement, BarElement, Tooltip, Legend, CategoryScale, LinearScale, ChartDataLabels);
 
 const Overview = () => {
@@ -58,48 +57,52 @@ const Overview = () => {
   const [clickedCard, setClickedCard] = useState(null);
 
   const doughnutIndustrycardData = {
-    labels: data.Industrypartnercard.map((STATUS) => `${STATUS.STATUS} ${STATUS.percentage}%`),
+    labels: data.industryPartnerCard.map((status) => `${status.STATUS} ${status.percentage}%`),
     datasets: [
       {
-        data: data.Industrypartnercard.map((STATUS) => STATUS.percentage),
-        backgroundColor: data.Industrypartnercard.map((STATUS) => STATUS.color),
+        data: data.industryPartnerCard.map((status) => status.percentage),
+        backgroundColor: ["#c30010", "#800000", "#f69697"],
         hoverOffset: 5,
       },
     ],
   };
 
   const doughnutndustrycardOptions = {
-    maintainAspectRatio: false, // Allow the chart to have custom height and width
-    aspectRatio: 1, // Defines the aspect ratio (1:1 means it's a circle)
+    maintainAspectRatio: false,
+    aspectRatio: 1,
     responsive: true,
     plugins: {
+      tooltip: {
+        enabled: true, // Keeps tooltips on hover
+      },
+      datalabels: {
+        display: false, // Hides labels inside the doughnut
+      },
       legend: {
-        position: "right", // Place legend to the right
+        position: "right",
         labels: {
           color: "white",
-          usePointStyle: true, // Use circular markers in legends
-          padding: 6, // Adjust padding between legend items
+          usePointStyle: true,
+          padding: 6,
         },
       },
     },
     elements: {
       arc: {
-        borderWidth: 7, // Set the border width between segments
-        borderColor: "#0000", // Set the border color between segments
+        borderWidth: 7,
+        borderColor: "#0000",
       },
     },
-    cutout: '50%',  // Increase to make the doughnut thinner and increase space between slices
+    cutout: '50%',
   };
 
-  // Function to format large numbers
   const formatNumber = (num) => {
     if (num >= 1000) {
-      return (num / 1000) + 'k'; // Format as "200k"
+      return (num / 1000) + 'k';
     }
     return num;
   };
 
-  // Bar Chart Data and Options
   const barData = {
     labels: data.natureOfBusinesses.map((business) => business.category),
     datasets: [
@@ -108,66 +111,75 @@ const Overview = () => {
         data: data.natureOfBusinesses.map((business) => business.count),
         backgroundColor: data.natureOfBusinesses.map((business, index) =>
           index === clickedBarIndex ? "#31111D" : "#FFD8E4"
-        ), // Change color of clicked bar
+        ),
         barThickness: 70,
         borderRadius: 16,
-        // Add custom options for data labels
         datalabels: {
-          display: (context) => context.dataIndex === clickedBarIndex, // Show label only for the clicked bar
+          display: (context) => context.dataIndex === clickedBarIndex,
           anchor: "end",
           align: "end",
           color: "#FFFFFF",
           font: {
             weight: "bold",
           },
-          offset: 4, // Adjusted space between the label and the top of the bar
-          backgroundColor: "#31111D", // Background color for the label
-          padding: 8, // Padding around the label text
-          borderRadius: 20, // Rounded corners for the background
-          formatter: (value) => formatNumber(value), // Format numbers here
+          offset: 4,
+          backgroundColor: "#31111D",
+          padding: 8,
+          borderRadius: 20,
+          formatter: (value) => formatNumber(value),
         },
       },
     ],
   };
 
   const barOptions = {
-    maintainAspectRatio: false, // Allow the chart to have custom height and width
+    maintainAspectRatio: false,
     responsive: true,
     plugins: {
       legend: {
-        display: false, // Hide legend for Bar chart
+        display: false,
       },
       datalabels: {
-        anchor: "end", // Position the label at the top of the bar
-        align: "end",  // Align the label to the end (top) of the bar
+        anchor: "end",
+        align: "end",
         font: {
-          weight: "bold", // Set font weight for labels
-          size: 20, // Set font size for labels 
+          weight: "bold",
+          size: 20,
         },
-       
-        backgroundColor: "#FF6347", // Background color for the label
-        borderRadius: 5, // Rounded corners for the background
-        
+        backgroundColor: "#FF6347",
+        borderRadius: 5,
       },
     },
     scales: {
       y: {
         ticks: {
-          display: false, // Hide Y-axis labels
+          display: false,
         },
         grid: {
-          display: false, // Hide Y-axis grid lines
+          display: false,
         },
         border: {
-          display: false,  // Remove y-axis line
+          display: false,
         },
       },
       x: {
         grid: {
-          display: false, // Hide X-axis grid lines
+          display: false,
         },
         border: {
-          display: false,  // Remove x-axis line
+          display: false,
+        },
+        ticks: {
+          autoSkip: false, // Ensure all labels are displayed
+          maxRotation: 0, // Keep labels straight
+          minRotation: 0,
+          font: {
+            size: 12, // Adjust for readability
+          },
+          callback: function (value) {
+            let label = this.getLabelForValue(value);
+            return label.match(/.{1,15}(\s|$)/g); // Split every 15 characters (adjust as needed)
+          },
         },
       },
     },
@@ -182,193 +194,191 @@ const Overview = () => {
     onClick: (event, elements) => {
       if (elements.length > 0) {
         const index = elements[0].index;
-        setClickedBarIndex(index === clickedBarIndex ? null : index); // Toggle clicked state
+        setClickedBarIndex(index === clickedBarIndex ? null : index);
       }
     },
   };
 
-
-
-  // Doughnut Chart Data and Options
   const doughnutData = {
-    labels: data.moaSTATUS.map((STATUS) => `${STATUS.STATUS} ${STATUS.percentage}%`),
+    labels: data.moaSTATUS.map((status) => `${status.STATUS} ${status.percentage}%`),
     datasets: [
       {
-        data: data.moaSTATUS.map((STATUS) => STATUS.percentage),
-        backgroundColor: data.moaSTATUS.map((STATUS) => STATUS.color),
+        data: data.moaSTATUS.map((status) => status.percentage),
+        backgroundColor: ["#c30010", "#800000", "#f69697"],
         hoverOffset: 5,
       },
     ],
   };
 
   const doughnutOptions = {
-    maintainAspectRatio: false, // Allow the chart to have custom height and width
-    aspectRatio: 1, // Defines the aspect ratio (1:1 means it's a circle)
+    maintainAspectRatio: false,
+    aspectRatio: 1,
     responsive: true,
     plugins: {
+      tooltip: {
+        enabled: true, // Keeps tooltips on hover
+      },
+      datalabels: {
+        display: false, // Hides labels inside the doughnut
+      },
       legend: {
-        position: "right", // Place legend to the right
+        position: "right",
         labels: {
-          usePointStyle: true, // Use circular markers in legends
-          padding: 15, // Adjust padding between legend items
+          usePointStyle: true,
+          padding: 15,
           font: {
             weight: "bold",
-            size: 10, // Set font size for legend items
+            size: 10,
           },
         },
       },
     },
     elements: {
       arc: {
-        borderWidth: 7, // Set the border width between segments
+        borderWidth: 7,
       },
     },
-    cutout: '40%',  // Increase to make the doughnut thinner and increase space between slices
+    cutout: '40%',
   };
 
   const handleYearChange = (event) => {
     setSelectedYear(event.target.value);
   };
-  
+
+  if (error) {
+    return <div className="text-red-500">{error}</div>;
+  }
 
   return (
-<div className="bg-gray-50 md:ml-[250px] mt-10 p-7 min-h-screen overflow-auto">
-  {/* Summary Cards */}
-  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-1 relative">
-    {data.summaryCards.map((card, index) => {
-      // Determine if the card is in the first or last column
-      const isFirstColumn = index % 4 === 0;
-      const isLastColumn = (index + 1) % 4 === 0;
+    <div className="bg-gray-50 md:ml-[250px] mt-10 p-7 min-h-screen overflow-auto">
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-1 relative">
+        {Array.isArray(data.summaryCards) && data.summaryCards.map((card, index) => {
+          const isFirstColumn = index % 4 === 0;
+          const isLastColumn = (index + 1) % 4 === 0;
 
-      // Calculate Main Campus and Other Campuses
-      const value1 = Math.round(card.value * 0.6); // 60% of the total
-      const value2 = card.value - value1;   // Remaining 40%
+          const value1 = Math.round(card.value * 0.6);
+          const value2 = card.value - value1;
 
-      // Define Gradient Backgrounds
-      const gradientClass = card.title === "Host Training Establishments (HTEs)" || card.title === "On-the-Job Training Coordinators" 
-        ? "bg-gradient-to-b from-[#31111D] to-[#9A3259]"  // HTE and OJT Coordinators
-        : "bg-gradient-to-b from-[#DAA521] via-[#E3B419] via-[#EDC211] via-[#F6D108] to-[#FFDF00]";  // MOAs and Industry Partners
-        
-        
-      const gradientClass2 = card.title === "Host Training Establishments (HTEs)" || card.title === "On-the-Job Training Coordinators" 
-        ? "bg-gradient-to-b from-[#9A3259] to-[#31111D]"  // HTE and OJT Coordinators
-        : "bg-gradient-to-b from-[#FFDF00] via-[#F6D108] via-[#EDC211] via-[#E3B419] to-[#DAA521]";  // MOAs and Industry Partners
+          const gradientClass = card.title === "Host Training Establishments (HTEs)" || card.title === "On-the-Job Training Coordinators" 
+            ? "bg-gradient-to-b from-[#31111D] to-[#9A3259]"
+            : "bg-gradient-to-b from-[#DAA521] via-[#E3B419] via-[#EDC211] via-[#F6D108] to-[#FFDF00]" ;
+            
+          const gradientClass2 = card.title === "Host Training Establishments (HTEs)" || card.title === "On-the-Job Training Coordinators" 
+            ? "bg-gradient-to-b from-[#9A3259] to-[#31111D]"
+            : "bg-gradient-to-b from-[#FFDF00] via-[#F6D108] via-[#EDC211] via-[#E3B419] to-[#DAA521]" ;
 
-        const transformScale = clickedCard === index 
-    ? (window.innerWidth < 768 
-        ? 'scale(0.8) translateX(-15%) translateY(2%)' 
-        : isFirstColumn 
-          ? 'scale(1.4) translateX(15%) translateY(15%)' 
-          : isLastColumn 
-            ? 'scale(1.4) translateX(-30%) translateY(15%)' 
-            : 'scale(1.4) translateY(15%)'
-      ) 
-    : 'scale(1)';
+          const transformScale = clickedCard === index 
+            ? (window.innerWidth < 768 
+                ? 'scale(0.8) translateX(-15%) translateY(2%)' 
+                : isFirstColumn 
+                  ? 'scale(1.4) translateX(15%) translateY(15%)' 
+                  : isLastColumn 
+                    ? 'scale(1.4) translateX(-30%) translateY(15%)' 
+                    : 'scale(1.4) translateY(15%)'
+              ) 
+            : 'scale(1)';
 
-    
-      return (
-        <div
-          key={index}
-          className={` shadow-lg rounded-t-2xl p-4 flex items-center justify-between transform transition-transform duration-300 ${gradientClass} ${
-            clickedCard === index ? 'scale-150 z-50' : 'scale-100'
-          }`}
-          style={{
-            zIndex: clickedCard === index ? 50 : 1,
-            width: clickedCard === index ? '130%' : '100%',
-            transform: transformScale,
-          }}
-          onClick={() => setClickedCard(clickedCard === index ? null : index)} // Toggle zoom
-        >
-          <div
-            className={`flex flex-col transition-all duration-300 ${
-              clickedCard === index ? 'text-lg' : 'text-sm'
-            }`}
-          >
-            <h3
-              className={`font-medium text-white mb-4 ${
-                clickedCard === index ? 'text-xl' : 'text-sm'
+          return (
+            <div
+              key={index}
+              className={`shadow-lg rounded-t-2xl p-4 flex items-center justify-between transform transition-transform duration-300 ${gradientClass} ${
+                clickedCard === index ? 'scale-150 z-50' : 'scale-100'
               }`}
+              style={{
+                zIndex: clickedCard === index ? 50 : 1,
+                width: clickedCard === index ? '130%' : '100%',
+                transform: transformScale,
+              }}
+              onClick={() => setClickedCard(clickedCard === index ? null : index)}
             >
-              {card.title}
-            </h3>
-            <p className={`font-bold text-white ${clickedCard === index ? 'text-4xl' : 'text-2xl'}`}>
-              {parseFloat(card.value.replace(/,/g, '')).toLocaleString()} {/* Format value with commas */}
-            </p>
-          </div>
-          
-          <div className="flex flex-col items-end">
-            {card.change.startsWith("+") ? (
-              <CornerRightUp
-                className={`transition-transform duration-300 mb-10 ${
-                  clickedCard === index ? 'text-white scale-150' : 'text-white'
+              <div
+                className={`flex flex-col transition-all duration-300 ${
+                  clickedCard === index ? 'text-lg' : 'text-sm'
                 }`}
-              />
-            ) : (
-              <CornerLeftDown
-                className={`transition-transform duration-300 mb-10 ${
-                  clickedCard === index ? 'text-white scale-150' : 'text-white'
-                }`}
-              />
-            )}
-            <p
-              className={`transition-all duration-300 font-medium ${
-                card.change.startsWith("+")
-                  ? clickedCard === index
-                    ? ' text-lg text-white'
-                    : ' text-sm text-white'
-                  : clickedCard === index
-                  ? ' text-lg text-white'
-                  : ' text-sm text-white'
-              }`}
-            >
-              {clickedCard === index ? "Total" : card.change}
-            </p>
-          </div>
+              >
+                <h3
+                  className={`font-medium text-white mb-4 ${
+                    clickedCard === index ? 'text-xl' : 'text-sm'
+                  }`}
+                >
+                  {card.title}
+                </h3>
+                <p className={`font-bold text-white ${clickedCard === index ? 'text-4xl' : 'text-2xl'}`}>
+                  {typeof card.value === 'number' ? card.value.toLocaleString() : '0'}
+                </p>
+              </div>
+              
+              <div className="flex flex-col items-end">
+                {card.change.startsWith("+") ? (
+                  <CornerRightUp
+                    className={`transition-transform duration-300 mb-10 ${
+                      clickedCard === index ? 'text-white scale-150' : 'text-white'
+                    }`}
+                  />
+                ) : (
+                  <CornerLeftDown
+                    className={`transition-transform duration-300 mb-10 ${
+                      clickedCard === index ? 'text-white scale-150' : 'text-white'
+                    }`}
+                  />
+                )}
+                <p
+                  className={`transition-all duration-300 font-medium ${
+                    card.change.startsWith("+")
+                      ? clickedCard === index
+                        ? ' text-lg text-white'
+                        : ' text-sm text-white'
+                      : clickedCard === index
+                      ? ' text-lg text-white'
+                      : ' text-sm text-white'
+                  }`}
+                >
+                  {clickedCard === index ? "Total" : card.change}
+                </p>
+              </div>
 
-          {/* Dropdown for MOAs and Industry Partners */}
-          {clickedCard === index && card.title === "Memorandum of Agreements (MOAs)" && (
-            <div className={`absolute top-full left-0 w-full shadow-lg rounded-b-2xl p-4 z-10 ${gradientClass2}`}>
+              {clickedCard === index && card.title === "Memorandum of Agreements (MOAs)" && (
+                <div className={`absolute top-full left-0 w-full shadow-lg rounded-b-2xl p-4 z-10 ${gradientClass2}`}>
+                  <div className="flex justify-between mb-2">
+                    <p className="text-2xl font-bold text-white -mt-5">
+                      {parseFloat(value1).toLocaleString()}
+                    </p>
+                    <p className="text-sm text-white font-medium text-right -mt-5">
+                      HTEs
+                    </p>
+                  </div>
+                  <div className="flex justify-between">
+                    <p className="text-2xl font-bold text-white">
+                      {parseFloat(value2).toLocaleString()}
+                    </p>
+                    <p className="text-sm text-white font-medium text-right">
+                      Industry Partners
+                    </p>
+                  </div>
+                </div>
+              )}
 
-              <div className="flex justify-between mb-2">
-                <p className="text-2xl font-bold text-white -mt-5">
-                  {parseFloat(value1).toLocaleString()} {/* HTEs value */}
-                </p>
-                <p className="text-sm text-white font-medium text-right -mt-5">
-                  HTEs {/* Text */}
-                </p>
-              </div>
-              <div className="flex justify-between">
-                <p className="text-2xl font-bold text-white">
-                  {parseFloat(value2).toLocaleString()} {/* Industry Partners value */}
-                </p>
-                <p className="text-sm text-white font-medium text-right">
-                  Industry Partners {/* Text */}
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* Dropdown for Host Training Establishments (HTEs) */}
-          {clickedCard === index && (card.title === "Host Training Establishments (HTEs)" || card.title === "On-the-Job Training Coordinators") && (
-            <div className={`absolute top-full left-0 w-full shadow-lg rounded-b-2xl p-4 z-10 ${gradientClass2}`}>
-              <div className="flex justify-between mb-2">
-                <p className="text-2xl font-bold text-white -mt-5">
-                  {parseFloat(value1).toLocaleString()} {/* HTEs value */}
-                </p>
-                <p className="text-sm text-white font-medium text-right -mt-5">
-                  Main Campus {/* Text */}
-                </p>
-              </div>
-              <div className="flex justify-between">
-                <p className="text-2xl font-bold text-white">
-                  {parseFloat(value2).toLocaleString()} {/* Other Campuses value */}
-                </p>
-                <p className="text-sm text-white font-medium text-right">
-                  Other Campuses {/* Text */}
-                </p>
-              </div>
-            </div>
-          )}
+              {clickedCard === index && (card.title === "Host Training Establishments (HTEs)" || card.title === "On-the-Job Training Coordinators") && (
+                <div className={`absolute top-full left-0 w-full shadow-lg rounded-b-2xl p-4 z-10 ${gradientClass2}`}>
+                  <div className="flex justify-between mb-2">
+                    <p className="text-2xl font-bold text-white -mt-5">
+                      {parseFloat(value1).toLocaleString()}
+                    </p>
+                    <p className="text-sm text-white font-medium text-right -mt-5">
+                      Main Campus
+                    </p>
+                  </div>
+                  <div className="flex justify-between">
+                    <p className="text-2xl font-bold text-white">
+                      {parseFloat(value2).toLocaleString()}
+                    </p>
+                    <p className="text-sm text-white font-medium text-right">
+                      Other Campuses
+                    </p>
+                  </div>
+                </div>
+              )}
 
               {clickedCard === index && card.title === "Industry Partners" && (
                 <div className={`absolute top-full left-0 w-full shadow-lg rounded-b-2xl p-4 z-10 ${gradientClass2}`}>
@@ -385,34 +395,29 @@ const Overview = () => {
       </div>
 
       {/* Nature of Businesses and MOA STATUS */}
-<div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-4 mb-6 mt-5">
-  {/* Bar Chart: Nature of Businesses */}
-  <div className="bg-white shadow rounded-lg p-2 flex flex-col min-h-[40px]">
-    <h3 className="text-lg font-medium text-gray-800 p-5">
-      Nature of Businesses
-    </h3>
-    <div className="h-[300px] sm:h-[250px] md:h-[300px] lg:h-[300px]">
-      <Bar data={barData} options={barOptions} />
-    </div>
-  </div>
+      <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-4 mb-6 mt-5">
+        <div className="bg-white shadow rounded-lg p-2 flex flex-col min-h-[40px]">
+          <h3 className="text-lg font-medium text-gray-800 p-5">
+            Nature of Businesses
+          </h3>
+          <div className="h-[300px] sm:h-[250px] md:h-[300px] lg:h-[300px]">
+            <Bar data={barData} options={barOptions} />
+          </div>
+        </div>
 
-  {/* Doughnut Chart: MOA STATUS */}
-  <div className="bg-white shadow rounded-lg p-2 flex flex-col min-h-[50px] mb-1">
-    <h3 className="text-lg font-medium text-gray-800 p-5">
-      Memorandum of Agreement (MOA) STATUS
-    </h3>
-    <div className="h-[250px] sm:h-[220px] md:h-[250px] lg:h-[300px] w-full">
-      <Doughnut data={doughnutData} options={doughnutOptions} />
-    </div>
-  </div>
-</div>
-
-
+        <div className="bg-white shadow rounded-lg p-2 flex flex-col min-h-[50px] mb-1">
+          <h3 className="text-lg font-medium text-gray-800 p-5">
+            Memorandum of Agreement (MOA) STATUS
+          </h3>
+          <div className="h-[250px] sm:h-[220px] md:h-[250px] lg:h-[300px] w-full">
+            <Doughnut data={doughnutData} options={doughnutOptions} />
+          </div>
+        </div>
+      </div>
       
-        {/* Tabbed Tables */}
+      {/* Tabbed Tables */}
       <div className="bg-white shadow rounded-lg p-4 flex h-30 flex-col">
-        {/* Tab Buttons and Year Dropdown Container */}
-        <div className="flex flex-col sm:flex-row justify-between items-center border-b border-gray-200 mb-2 -mt-2">          {/* Tab Buttons */}
+        <div className="flex flex-col sm:flex-row justify-between items-center border-b border-gray-200 mb-2 -mt-2">
           <div className="flex sm:flex -mt-5 ">
             {Object.keys(data.tableData).map((tab, index) => (
               <button
@@ -429,7 +434,6 @@ const Overview = () => {
             ))}
           </div>
           
-          {/* Year Dropdown */}
           <select
             value={selectedYear}
             onChange={handleYearChange}
