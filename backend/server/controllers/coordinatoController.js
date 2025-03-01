@@ -1,9 +1,9 @@
-import initializeConnection from '../config/db.js';
+import {mainDB} from '../config/db.js';
 
 export const getCoordinators = async (req, res) => {
     let connection;
     try {
-        const connection = await initializeConnection();
+        const connection = await mainDB();
         const [coordinators] = await connection.query("SELECT * FROM ojt_coordinator");
         res.status(200).json(coordinators);
     } catch (error) {
@@ -18,7 +18,7 @@ export const getCoordinatorById = async (req, res) => {
     let connection;
     try {
         const { id } = req.params;
-        const connection = await initializeConnection();
+        const connection = await mainDB();
         const [coordinator] = await connection.query("SELECT * FROM ojt_coordinator WHERE id = ?", [id]);
         
         if (coordinator.length === 0) {
@@ -43,7 +43,7 @@ export const addCoordinator = async (req, res) => {
             return res.status(400).json({ error: "All fields are required." });
         }
 
-        const connection = await initializeConnection();
+        const connection = await mainDB();
         const [result] = await connection.query(
             "INSERT INTO ojt_coordinator (name, campus, college, assigned_student, status, email, office, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())",
             [name, campus, college, assigned_student, status, email, office]
@@ -80,7 +80,7 @@ export const updateCoordinator = async (req, res) => {
             return res.status(400).json({ error: "All fields are required." });
         }
 
-        const connection = await initializeConnection();
+        const connection = await mainDB();
         const [result] = await connection.query(
             "UPDATE ojt_coordinator SET name = ?, campus = ?, college = ?, assigned_student = ?, status = ?, email = ?, office = ?, updated_at = NOW() WHERE id = ?",
             [name, campus, college, assigned_student, status, email, office, id]
@@ -103,7 +103,7 @@ export const deleteCoordinator = async (req, res) => {
     let connection;
     try {
         const { id } = req.params;
-        const connection = await initializeConnection();
+        const connection = await mainDB();
         
         // Check if the coordinator exists
         const [existingCoordinator] = await connection.query("SELECT * FROM ojt_coordinator WHERE id = ?", [id]);

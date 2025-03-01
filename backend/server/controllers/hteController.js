@@ -1,9 +1,9 @@
-import initializeConnection from '../config/db.js';
+import {mainDB} from '../config/db.js';
 
 export const getHte = async (req, res) => {
     let connection;
     try {
-        const connection = await initializeConnection();
+        const connection = await mainDB();
         const [hte] = await connection.query("SELECT * FROM hte");
         res.status(200).json(hte);
     } catch (error) {
@@ -18,7 +18,7 @@ export const getHteById = async (req, res) => {
     let connection;
     try {
         const { id } = req.params;
-        const connection = await initializeConnection();
+        const connection = await mainDB();
         const [hte] = await connection.query("SELECT * FROM hte WHERE id = ?", [id]);
         
         if (hte.length === 0) {
@@ -76,7 +76,7 @@ export const addHte = async (req, res) => {
         const formattedExpiryDate = expiry_date ? new Date(expiry_date).toISOString().split("T")[0] : null;
         const formattedMoaDate = with_moa_date_notarized ? new Date(with_moa_date_notarized).toISOString().split("T")[0] : null;
 
-        connection = await initializeConnection();
+        connection = await mainDB();
         const [result] = await connection.query(
             `INSERT INTO hte (
                 company_name, office_address, year_submitted, business_type, moa_status,
@@ -154,7 +154,7 @@ export const updateHte = async (req, res) => {
         const formattedExpiryDate = expiry_date ? new Date(expiry_date).toISOString().split("T")[0] : null;
         const formattedMoaDate = with_moa_date_notarized ? new Date(with_moa_date_notarized).toISOString().split("T")[0] : null;
 
-        connection = await initializeConnection();
+        connection = await mainDB();
         const [result] = await connection.query(
             `UPDATE hte SET 
                 company_name = ?, office_address = ?, year_submitted = ?, business_type = ?, moa_status = ?,
@@ -200,7 +200,7 @@ export const deleteHte = async (req, res) => {
     let connection;
     try {
         const { id } = req.params;
-        const connection = await initializeConnection();
+        const connection = await mainDB();
         
         // Check if the HTE record exists
         const [existingHte] = await connection.query("SELECT * FROM hte WHERE id = ?", [id]);

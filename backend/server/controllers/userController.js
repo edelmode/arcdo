@@ -1,24 +1,27 @@
-import initializeConnection from '../config/db.js';
-import connectDB from '../config/db.js';
+import { mainDB } from '../config/db.js';
+import bcrypt from 'bcrypt';
 
+// Get all users
 export const getUsers = async (req, res) => {
     let connection;
     try {
-        const connection = await connectDB();
+        connection = await mainDB();
         const sql = "SELECT * FROM users";
         const [results] = await connection.query(sql);
         res.json(results);
     } catch (error) {
+        console.error("Error fetching users:", error);
         res.status(500).json({ error: 'Internal Server Error' });
     } finally {
-        if (connection) connection.end();
+        if (connection) await connection.end();
     }
 };
 
+// Create a new user
 export const createUser = async (req, res) => {
     let connection;
     try {
-        const { email, password, name, contact_number, position, campus, college} = req.body;
+        const { email, password, name, contact_number, position, campus, college } = req.body;
         
         // Input validation
         if (!email || !password || !name || !contact_number || !position || !campus || !college) {
@@ -33,7 +36,7 @@ export const createUser = async (req, res) => {
             return res.status(400).json({ error: 'Password must be at least 8 characters long and contain a number or special character.' });
         }
 
-        const connection = await initializeConnection();
+        connection = await mainDB();
 
         // Check if the email already exists
         const [existingUser] = await connection.query("SELECT id FROM users WHERE email = ?", [email]);
@@ -55,14 +58,14 @@ export const createUser = async (req, res) => {
         // Insert additional user info
         await connection.query(
             "INSERT INTO user_account (user_id, name, contact_number, position, campus, college) VALUES (?, ?, ?, ?, ?, ?)",
-            [userId, realName, contact_number, position, campus, college]
+            [userId, name, contact_number, position, campus, college]
         );
-        
         
         res.status(201).json({ message: 'Registration successful. Please verify your account.', user_id: userId });
     } catch (error) {
+        console.error("Error creating user:", error);
         res.status(500).json({ error: `An error occurred: ${error.message}` });
     } finally {
-        if (connection) connection.end();
+        if (connection) await connection.end();
     }
 };

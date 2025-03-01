@@ -1,10 +1,10 @@
-import initializeConnection from '../config/db.js';
+import {mainDB} from '../config/db.js';
 
 // Get all partners
 export const getPartner = async (req, res) => {
     let connection;
     try {
-        connection = await initializeConnection();
+        connection = await mainDB();
         const [partners] = await connection.query("SELECT * FROM industry_partner");
 
         res.status(200).json(partners);
@@ -21,7 +21,7 @@ export const getPartnerById = async (req, res) => {
     let connection;
     try {
         const { id } = req.params;
-        connection = await initializeConnection();
+        connection = await mainDB();
         const [partner] = await connection.query("SELECT * FROM industry_partner WHERE id = ?", [id]);
 
         if (partner.length === 0) {
@@ -43,7 +43,7 @@ export const addPartner = async (req, res) => {
     try {
         const newPartner = { ...req.body };
 
-        connection = await initializeConnection();
+        connection = await mainDB();
         const [result] = await connection.query(
             "INSERT INTO industry_partner SET ?",
             [newPartner]
@@ -70,7 +70,7 @@ export const updatePartner = async (req, res) => {
         const { id } = req.params;
         const updates = { ...req.body };
 
-        connection = await initializeConnection();
+        connection = await mainDB();
         
         const updateQuery = 'UPDATE industry_partner SET ? WHERE id = ?';
         const [result] = await connection.query(updateQuery, [updates, id]);
@@ -95,7 +95,7 @@ export const deletePartner = async (req, res) => {
     let connection;
     try {
         const { id } = req.params;
-        connection = await initializeConnection();
+        connection = await mainDB();
 
         // Check if the partner record exists
         const [existingPartner] = await connection.query("SELECT * FROM industry_partner WHERE id = ?", [id]);

@@ -1,9 +1,9 @@
-import initializeConnection from '../config/db.js';
+import {mainDB} from '../config/db.js';
 
 export const getSummaryCards = async (req, res) => {
   let connection;
   try {
-    connection = await initializeConnection();
+    connection = await mainDB();
     const [summaryCards] = await connection.query(`
       SELECT 
         (SELECT COUNT(*) FROM hte) AS HTEs,
@@ -23,7 +23,7 @@ export const getSummaryCards = async (req, res) => {
 export const getIndustrypartnercard = async (req, res) => {
   let connection;
   try {
-    connection = await initializeConnection();
+    connection = await mainDB();
     const [industryPartnerCard] = await connection.query(`
       SELECT moa_status AS STATUS, COUNT(*) * 100.0 / (SELECT COUNT(*) FROM industry_partner) AS percentage, 
       CASE 
@@ -47,7 +47,7 @@ export const getIndustrypartnercard = async (req, res) => {
 export const getNatureOfBusinesses = async (req, res) => {
   let connection;
   try {
-    connection = await initializeConnection();
+    connection = await mainDB();
     const [natureOfBusinesses] = await connection.query(`
       SELECT business_type AS category, COUNT(*) AS count 
       FROM hte 
@@ -67,7 +67,7 @@ export const getNatureOfBusinesses = async (req, res) => {
 export const getMoaStatus = async (req, res) => {
   let connection;
   try {
-    connection = await initializeConnection();
+    connection = await mainDB();
     const [moaStatus] = await connection.query(`
       SELECT moa_status AS STATUS, COUNT(*) * 100.0 / (SELECT COUNT(*) FROM moa) AS percentage, 
       CASE 
@@ -91,7 +91,7 @@ export const getMoaStatus = async (req, res) => {
 export const getTableData = async (req, res) => {
   let connection;
   try {
-    connection = await initializeConnection();
+    connection = await mainDB();
     const [hteTableData] = await connection.query(`
       SELECT id AS DOC, company_name AS COMPANY, office_address AS ADDRESS, year_submitted AS DATE, business_type AS BUSINESS, moa_status AS STATUS FROM hte WHERE moa_status = 'On hold' or moa_status = 'Rejected'
     `);

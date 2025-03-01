@@ -3,16 +3,16 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import initializeConnection from './server/config/db.js';
+import { mainDB, moaDB } from './server/config/db.js';
 
 // Import your routes
 import authRoutes from './server/routes/auth.js';
 import userRoutes from './server/routes/user.js';
 import coordinatorRoutes from './server/routes/coordinator.js';
-import moaRoutes from './server/routes/moa.js'
-import hteRoutes from './server/routes/hte.js'
-import ipRoutes from './server/routes/ip.js'
-import adminRoutes from './server/routes/admin.js'
+import moaRoutes from './server/routes/moa.js';
+import hteRoutes from './server/routes/hte.js';
+import ipRoutes from './server/routes/ip.js';
+import adminRoutes from './server/routes/admin.js';
 import overviewRoutes from './server/routes/overview.js';
 
 dotenv.config();
@@ -38,31 +38,39 @@ app.use(
 app.use(express.static(path.join(__dirname, '../client/dist')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-
-
-
 // Database Initialization and Server Start
 const startServer = async () => {
-  let dbConnection;
-  try {
-    const dbConnection = await initializeConnection();
+  let mainDBConnection;
+  let moaDBConnection;
 
-    // Middleware to make the DB connection available in routes
+  try {
+    // Initialize Main Database
+    mainDBConnection = await mainDB();
+
+    // Middleware to attach the main DB connection to requests (except /api/moa)
     app.use((req, res, next) => {
-      req.db = dbConnection;
+      if (!req.path.startsWith('/api/moa')) {
+        req.db = mainDBConnection;
+      }
       next();
     });
 
-    // Define API Routes
+    // Initialize MOA Database Connection only for MOA routes
+    moaDBConnection = await moaDB();
+
+    app.use('/api/moa', (req, res, next) => {
+      req.db = moaDBConnection;
+      next();
+    }, moaRoutes);
+
+    // Define API Routes (using mainDB)
     app.use('/api/auth', authRoutes);
     app.use('/api/users', userRoutes);
     app.use('/api/coordinator', coordinatorRoutes);
-    app.use('/api/moa', moaRoutes);
     app.use('/api/hte', hteRoutes);
     app.use('/api/ip', ipRoutes);
     app.use('/api/admin', adminRoutes);
     app.use('/api/overview', overviewRoutes);
-
 
     // Start Server
     const PORT = process.env.PORT || 3000;
@@ -73,8 +81,9 @@ const startServer = async () => {
     console.error('Failed to connect to the database:', error);
     process.exit(1);
   } finally {
-    if (dbConnection) dbConnection.end();
-}
+    if (mainDBConnection) mainDBConnection.end();
+    if (moaDBConnection) moaDBConnection.end();
+  }
 };
 
 startServer();

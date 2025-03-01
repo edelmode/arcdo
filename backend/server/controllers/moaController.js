@@ -1,11 +1,11 @@
-import initializeConnection from '../config/db.js';
+import {moaDB} from '../config/db.js';
 
 // Get all MOA records
 export const getMoa = async (req, res) => {
     let connection;
     try {
-        const connection = await initializeConnection();
-        const [moa] = await connection.query("SELECT * FROM moa");
+        const connection = await moaDB();
+        const [moa] = await connection.query("SELECT * FROM moa_info");
         res.status(200).json(moa);
     } catch (error) {
         console.error("Error fetching moa:", error);
@@ -20,7 +20,7 @@ export const getMoaById = async (req, res) => {
     let connection;
     try {
         const { id } = req.params;
-        const connection = await initializeConnection();
+        const connection = await moaDB();
         const [moa] = await connection.query("SELECT * FROM moa WHERE id = ?", [id]);
         
         if (moa.length === 0) {
@@ -75,7 +75,7 @@ export const addMoa = async (req, res) => {
         const expirationDate = expiration_date ? expiration_date : null;
         const dateNotarized = date_notarized ? date_notarized : null;
 
-        connection = await initializeConnection();
+        connection = await moaDB();
         const [result] = await connection.query(
             `INSERT INTO moa (
                 company_name, address, year_moa_started, business_type, moa_status,
@@ -139,7 +139,7 @@ export const updateMoa = async (req, res) => {
         const formattedExpiryDate = expiration_date ? new Date(expiration_date).toISOString().split("T")[0] : null;
         const formattedNotarizedDate = date_notarized ? new Date(date_notarized).toISOString().split("T")[0] : null;
 
-        connection = await initializeConnection();
+        connection = await moaDB();
         const [result] = await connection.query(
             `UPDATE moa SET 
                 company_name = ?, 
@@ -193,7 +193,7 @@ export const deleteMoa = async (req, res) => {
     let connection;
     try {
         const { id } = req.params;
-        const connection = await initializeConnection();
+        const connection = await moaDB();
         
         // Check if the MOA record exists
         const [existingMoa] = await connection.query("SELECT * FROM moa WHERE id = ?", [id]);

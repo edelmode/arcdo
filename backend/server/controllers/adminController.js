@@ -1,9 +1,9 @@
-import connectDB from '../config/db.js';
+import { mainDB } from '../config/db.js';
 
 export const getAdminUsers = async (req, res) => {
     let connection;
     try {
-        connection = await connectDB();
+        connection = await mainDB();
         const sql = `
             SELECT users.id, users.email, users.role, users.last_login, user_account.name
             FROM users
@@ -16,16 +16,15 @@ export const getAdminUsers = async (req, res) => {
         console.error("Error fetching admin users:", error);
         res.status(500).json({ error: 'Internal Server Error' });
     } finally {
-        if (connection) connection.end();
+        if (connection) await connection.end();
     }
 };
-
 
 export const checkUserExists = async (req, res) => {
     let connection;
     const { email, name } = req.body;
     try {
-        const connection = await connectDB();
+        connection = await mainDB();
         let query = "";
         let queryParams = [];
 
@@ -41,30 +40,22 @@ export const checkUserExists = async (req, res) => {
 
         const [user] = await connection.query(query, queryParams);
 
-        if (user.length > 0) {
-            return res.json({ exists: true });
-        } else {
-            return res.json({ exists: false });
-        }
+        res.json({ exists: user.length > 0 });
     } catch (error) {
         console.error("Error checking user existence:", error);
-        res.status(500).json({ error: "Internal server error" });
+        res.status(500).json({ error: "Internal Server Error" });
     } finally {
-        if (connection) connection.end();
+        if (connection) await connection.end();
     }
 };
-
-
 
 export const setAdminRole = async (req, res) => {
     let connection;
     const { name, email } = req.body; // Accept name or email
-    const requesterId = req.user?.id; // ID of the requesting user (from authentication middleware)
 
     try {
-        const connection = await connectDB();
+        connection = await mainDB();
 
-        // Check if a user with the provided name or email exists
         let query = "SELECT id FROM users WHERE ";
         let queryParams = [];
 
@@ -86,7 +77,6 @@ export const setAdminRole = async (req, res) => {
 
         const userId = user[0].id;
 
-        // Update the role to Admin
         await connection.query("UPDATE users SET role = 'Admin' WHERE id = ?", [userId]);
 
         res.json({ message: "User role updated to Admin successfully" });
@@ -94,17 +84,17 @@ export const setAdminRole = async (req, res) => {
     } catch (error) {
         console.error("Error updating user role:", error);
         res.status(500).json({ error: "Internal Server Error" });
+    } finally {
+        if (connection) await connection.end();
     }
 };
 
 export const removeAdminRole = async (req, res) => {
     let connection;
     const { name, email } = req.body; // Accept name or email
-    const requesterId = req.user?.id; // ID of the requesting user (from authentication middleware)
 
     try {
-        const connection = await connectDB();
-        // Find user by name or email
+        connection = await mainDB();
         let query = "SELECT id FROM users WHERE ";
         let queryParams = [];
 
@@ -126,7 +116,6 @@ export const removeAdminRole = async (req, res) => {
 
         const userId = user[0].id;
 
-        // Update the role to "User"
         await connection.query("UPDATE users SET role = 'User' WHERE id = ?", [userId]);
 
         res.json({ message: "User role updated to User successfully" });
@@ -135,6 +124,6 @@ export const removeAdminRole = async (req, res) => {
         console.error("Error updating user role:", error);
         res.status(500).json({ error: "Internal Server Error" });
     } finally {
-        if (connection) connection.end();
+        if (connection) await connection.end();
     }
 };

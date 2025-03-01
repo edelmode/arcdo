@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
-import initializeConnection from '../config/db.js';
+import {mainDB} from '../config/db.js';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
@@ -40,7 +40,7 @@ export const register = async (req, res) => {
             return res.status(400).json({ error: 'Password must be at least 8 characters long and contain a number or special character.' });
         }
 
-        const connection = await initializeConnection();
+        const connection = await mainDB();
 
         const [existingUser] = await connection.query("SELECT id FROM users WHERE email = ?", [email]);
         if (existingUser.length > 0) {
@@ -135,7 +135,7 @@ export const userDetails = async (req, res) => {
   
     let connection;
     try {
-        connection = await initializeConnection();
+        connection = await mainDB();
           
         const [userInfo] = await connection.query(
             "SELECT name, contact_number, position, campus, profilePicture, college FROM user_account WHERE user_id = ?",
@@ -180,7 +180,7 @@ export const updateUserDetailsWithProfilePicture = [
 
         let connection;
         try {
-            connection = await initializeConnection();
+            connection = await mainDB();
             
             // In updateUserDetailsWithProfilePicture controller
             let profilePicturePath;
@@ -250,7 +250,7 @@ export const updateUserDetailsWithProfilePicture = [
 
 //     let connection;
 //     try {
-//         connection = await initializeConnection();
+//         connection = await mainDB();
 
 //         // Update user details in the database
 //         const [updateResult] = await connection.query(
@@ -284,7 +284,7 @@ export const login = async (req, res) => {
     let connection;
     try {
         const { email, password } = req.body;
-        const connection = await initializeConnection();
+        const connection = await mainDB();
         const sql = 'SELECT * FROM users WHERE email = ?';
         const [results] = await connection.query(sql, [email]);
 
@@ -344,7 +344,7 @@ export const refresh_token = async (req, res) => {
     let connection;
     try {
         const decoded = jwt.verify(refresh_token, refreshSecretKey);
-        const connection = await initializeConnection();
+        const connection = await mainDB();
         const sql = 'SELECT * FROM users WHERE id = ? AND refresh_token = ?';
         const [results] = await connection.query(sql, [decoded.id, refresh_token]);
 
@@ -399,7 +399,7 @@ export const forgotPassword = async (req, res) => {
     const { email } = req.body;
     let connection;
     try {
-        const connection = await initializeConnection();
+        const connection = await mainDB();
 
         // Check if the user exists in the database
         const sql = 'SELECT * FROM users WHERE email = ?';
@@ -450,7 +450,7 @@ export const resetPassword = async (req, res) => {
 
         const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-        const connection = await initializeConnection();
+        const connection = await mainDB();
         const sql = 'UPDATE users SET password = ? WHERE email = ?';
         await connection.query(sql, [hashedPassword, email]);
 
