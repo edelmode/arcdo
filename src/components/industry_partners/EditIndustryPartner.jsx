@@ -33,29 +33,27 @@ const EditIndustryPartner = ({ isOpen, onClose, industrypartnerData, onPartnerEd
   
   useEffect(() => {
     if (industrypartnerData) {
-      setIndustryPartner(industrypartnerData);
+      setIndustryPartner({
+        ...industrypartnerData,
+        year_included: formatDateForDisplay(industrypartnerData.year_included),
+        with_moa_date_notarized: formatDateForDisplay(industrypartnerData.with_moa_date_notarized),
+        expiry_date: formatDateForDisplay(industrypartnerData.expiry_date),
+      });
     }
   }, [industrypartnerData]);
 
-  const formatMySQLDate = (date) => {
-    if (!date) return null;
+  const formatDateForDisplay = (date) => {
+    if (!date) return "";
     const d = new Date(date);
     const pad = (n) => (n < 10 ? '0' + n : n);
-    return (
-      d.getFullYear() +
-      '-' +
-      pad(d.getMonth() + 1) +
-      '-' +
-      pad(d.getDate()) +
-      ' ' +
-      pad(d.getHours()) +
-      ':' +
-      pad(d.getMinutes()) +
-      ':' +
-      pad(d.getSeconds())
-    );
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
   };
-  
+
+  const formatDateForSubmission = (date) => {
+    if (!date) return null;
+    return date;
+  };
+
   const handleSave = async () => {
     try {
       // Convert empty fields to NULL
@@ -83,9 +81,14 @@ const EditIndustryPartner = ({ isOpen, onClose, industrypartnerData, onPartnerEd
           updatedPartner[field] = null;
         }
       });
+
+      // Format date fields for submission
+      updatedPartner.year_included = formatDateForSubmission(updatedPartner.year_included);
+      updatedPartner.with_moa_date_notarized = formatDateForSubmission(updatedPartner.with_moa_date_notarized);
+      updatedPartner.expiry_date = formatDateForSubmission(updatedPartner.expiry_date);
   
       // Format updated_at for MySQL
-      updatedPartner.updated_at = formatMySQLDate(new Date());
+      updatedPartner.updated_at = new Date().toISOString().slice(0, 19).replace('T', ' ');
   
       const response = await fetch(
         `http://localhost:3001/api/ip/updatePartner/${industryPartner.id}`,
@@ -99,7 +102,6 @@ const EditIndustryPartner = ({ isOpen, onClose, industrypartnerData, onPartnerEd
       );
   
       if (response.ok) {
-        // Remove the window.location.reload() and use the callback instead
         if (onPartnerEdited) {
           onPartnerEdited();
         }
@@ -113,7 +115,6 @@ const EditIndustryPartner = ({ isOpen, onClose, industrypartnerData, onPartnerEd
       setError("An error occurred while updating the Industry Partner");
     }
   };
-  
 
   if (!isOpen) return null;
 
@@ -288,7 +289,6 @@ const EditIndustryPartner = ({ isOpen, onClose, industrypartnerData, onPartnerEd
                 value={industryPartner.year_included || ""}
                 onChange={(e) => setIndustryPartner({ ...industryPartner, year_included: e.target.value })}
                 className="w-full p-2 border rounded border-gray-500"
-                placeholder="Year Included"
               />
             </div>
           </div>

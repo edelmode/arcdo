@@ -10,10 +10,18 @@ export default function ResetPassword() {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
-    const [isSubmitted, setIsSubmitted] = useState(false); // New state for disabling button
+    const [isSubmitted, setIsSubmitted] = useState(false); 
     const navigate = useNavigate();
     const location = useLocation();
     const token = new URLSearchParams(location.search).get('token');
+
+    // Array of placeholder images
+    const bgImages = [
+        "/public/bg.png",
+        "/public/bg1.jpg",
+        "/public/bg2.jpeg"
+    ];
+    const randomBg = bgImages[Math.floor(Math.random() * bgImages.length)];
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -47,7 +55,7 @@ export default function ResetPassword() {
             if (response.ok) {
                 setMessage('Your password has been successfully reset.');
                 setIsError(false);
-                setIsSubmitted(true); // Disable button on success
+                setIsSubmitted(true); 
 
                 setTimeout(() => {
                     navigate('/login');
@@ -65,9 +73,12 @@ export default function ResetPassword() {
     };
 
     return (
-        <div className="h-screen bg-cover flex justify-center items-center px-4"
-        style={{ backgroundImage: "url('/public/bg.png')" }}>
-            <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-xs sm:max-w-sm md:max-w-md">
+        <div className="h-screen flex justify-center items-center px-4 bg-cover bg-center relative"
+            style={{ backgroundImage: `url(${randomBg})` }}>
+            {/* Overlay for blur effect on mobile */}
+            <div className="absolute inset-0 bg-black bg-opacity-30 sm:bg-opacity-20 md:bg-transparent backdrop-blur-sm sm:backdrop-blur-md md:backdrop-blur-none"></div>
+
+            <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-xs sm:max-w-sm md:max-w-md relative z-10">
                 <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
                     <h3 className="text-2xl font-semibold text-center">
                         Reset Password
@@ -132,7 +143,7 @@ export default function ResetPassword() {
 
                         <button
                             type="submit"
-                            disabled={isSaving || isSubmitted} // Disable button on success
+                            disabled={isSaving || isSubmitted}
                             className={`w-full py-2 rounded-md text-white transition 
                                 ${isSaving || isSubmitted ? 'bg-gray-400' : 'bg-[#800101] hover:bg-red-600'}
                                 focus:outline-none focus:ring-4 focus:ring-red-400`}

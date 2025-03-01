@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { Upload, FileText } from "lucide-react";
 
 const AddMoa = ({ isOpen, onClose, onMoaAdded }) => {
+  const [dragActive, setDragActive] = useState(false);
   const [newMoa, setNewMoa] = useState({
     company_name: "",
     address: "",
@@ -104,6 +106,31 @@ const AddMoa = ({ isOpen, onClose, onMoaAdded }) => {
     }
   };
   
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setnewMoa({ ...newMoa, file });
+    }
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setDragActive(true);
+  };
+
+  const handleDragLeave = () => {
+    setDragActive(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setDragActive(false);
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      setnewMoa({ ...newMoa, file });
+    }
+  };
     
 
   if (!isOpen) return null;
@@ -119,25 +146,25 @@ const AddMoa = ({ isOpen, onClose, onMoaAdded }) => {
 
         <div className="space-y-4">
           <div>
-            <label className="text-sm font-medium text-gray-700">Company Name</label>
+            <label className="text-sm font-extrabold text-gray-700">Company Name</label>
             <input
               type="text"
               value={newMoa.company_name}
               onChange={(e) => setNewMoa({ ...newMoa, company_name: e.target.value })}
               className="w-full p-2 border rounded border-gray-500"
-              placeholder="Company Name"
+              placeholder="Enter Company Name"
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="text-sm font-medium text-gray-700">MOA Type</label>
+              <label className="text-sm font-extrabold text-gray-700">Type of MOA</label>
               <select
                 value={newMoa.type_of_moa || ""}
                 onChange={(e) => setNewMoa({ ...newMoa, type_of_moa: e.target.value })}
                 className="w-full p-2 border rounded border-gray-500"
               >
-                <option value="" disabled>Select MOA Type</option>
+                <option value="" disabled>Select Type of MOA</option>
                 <option value="Practicum">Practicum</option>
                 <option value="Research">Research</option>
                 <option value="Employment">Employment</option>
@@ -146,20 +173,77 @@ const AddMoa = ({ isOpen, onClose, onMoaAdded }) => {
             </div>
 
             <div>
-              <label className="text-sm font-medium text-gray-700">Draft of MOA Sent</label>
+              <label className="text-sm font-extrabold text-gray-700">Nature of Business</label>
               <input
-                type="number"
-                value={newMoa.moa_draft_sent}
-                onChange={(e) => setNewMoa({ ...newMoa, moa_draft_sent: e.target.value })}
+                type="text"
+                value={newMoa.business_type}
+                onChange={(e) => setNewMoa({ ...newMoa, business_type: e.target.value })}
                 className="w-full p-2 border rounded border-gray-500"
-                placeholder="Year of Draft MOA Sent"
+                placeholder="Enter Nature of Business"
               />
             </div>
           </div>
 
+          <div>
+            <label className="text-sm font-extrabold text-gray-700">Company Address</label>
+            <input
+              type="text"
+              value={newMoa.address}
+              onChange={(e) => setNewMoa({ ...newMoa, address: e.target.value })}
+              className="w-full p-2 border rounded border-gray-500"
+              placeholder="Enter Company Address"
+            />
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="text-sm font-medium text-gray-700">MOA Satus</label>
+              <label className="text-sm font-extrabold text-gray-700">Contact Person Full Name</label>
+              <input
+                type="text"
+                value={newMoa.contact_person}
+                onChange={(e) => setNewMoa({ ...newMoa, contact_person: e.target.value })}
+                className="w-full p-2 border rounded border-gray-500"
+                placeholder="Enter Full Name"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-extrabold text-gray-700">Contact Number</label>
+              <input
+                type="number"
+                value={newMoa.contact_no}
+                onChange={(e) => setNewMoa({ ...newMoa, contact_no: e.target.value })}
+                className="w-full p-2 border rounded border-gray-500"
+                placeholder="Contact Number"
+              />
+            </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-extrabold text-gray-700">Contact Person Position</label>
+              <input
+                type="number"
+                value={newMoa.contact_no}
+                onChange={(e) => setNewMoa({ ...newMoa, contact_no: e.target.value })}
+                className="w-full p-2 border rounded border-gray-500"
+                placeholder="Enter Position"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-extrabold text-gray-700">Email Address</label>
+              <input
+                type="email"
+                value={newMoa.email}
+                onChange={(e) => setNewMoa({ ...newMoa, email: e.target.value })}
+                className="w-full p-2 border rounded border-gray-500"
+                placeholder="email@domain.com"
+              />
+            </div>
+            </div>
+
+            <div>
+              <label className="text-sm font-extrabold text-gray-700">MOA Satus</label>
               <select
                 value={newMoa.moa_status}
                 onChange={(e) => setNewMoa({ ...newMoa, moa_status: e.target.value })}
@@ -173,98 +257,21 @@ const AddMoa = ({ isOpen, onClose, onMoaAdded }) => {
               </select>
             </div>
 
-            <div>
-              <label className="text-sm font-medium text-gray-700">Business Type</label>
-              <input
-                type="text"
-                value={newMoa.business_type}
-                onChange={(e) => setNewMoa({ ...newMoa, business_type: e.target.value })}
-                className="w-full p-2 border rounded border-gray-500"
-                placeholder="Business Type"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
-              <label className="text-sm font-medium text-gray-700">Contact Person</label>
-              <input
-                type="text"
-                value={newMoa.contact_person}
-                onChange={(e) => setNewMoa({ ...newMoa, contact_person: e.target.value })}
-                className="w-full p-2 border rounded border-gray-500"
-                placeholder="Contact Person"
-              />
-            </div>
-
-            <div>
-              <label className="text-sm font-medium text-gray-700">Contact Number</label>
-              <input
-                type="number"
-                value={newMoa.contact_no}
-                onChange={(e) => setNewMoa({ ...newMoa, contact_no: e.target.value })}
-                className="w-full p-2 border rounded border-gray-500"
-                placeholder="Contact Number"
-              />
-            </div>
-
-            <div>
-              <label className="text-sm font-medium text-gray-700">Email Address</label>
-              <input
-                type="email"
-                value={newMoa.email}
-                onChange={(e) => setNewMoa({ ...newMoa, email: e.target.value })}
-                className="w-full p-2 border rounded border-gray-500"
-                placeholder="email@domain.com"
-              />
-            </div>
-          </div>
-
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
-            <label className="text-sm font-medium text-gray-700">Office Address</label>
-            <input
-              type="text"
-              value={newMoa.address}
-              onChange={(e) => setNewMoa({ ...newMoa, address: e.target.value })}
-              className="w-full p-2 border rounded border-gray-500"
-              placeholder="Office Address"
-            />
-          </div>
-
-          <div>
-            <label className="text-sm font-medium text-gray-700">Remarks</label>
-            <textarea
-              value={newMoa.remarks}
-              onChange={(e) => setNewMoa({ ...newMoa, remarks: e.target.value })}
-              className="w-full p-2 border rounded border-gray-500"
-              placeholder="Remarks"
-            />
-          </div>
-
-          <div>
-            <label className="text-sm font-medium text-gray-700">Validity</label>
+            <label className="text-sm font-extrabold text-gray-700">Validity</label>
             <input
               type="text"
               value={newMoa.validity}
               onChange={(e) => setNewMoa({ ...newMoa, validity: e.target.value })}
               className="w-full p-2 border rounded border-gray-500"
-              placeholder="Years of Validity"
+              placeholder="Enter Years of Validity"
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
-              <label className="text-sm font-medium text-gray-700">MOA Year Started</label>
-              <input
-                type="date"
-                value={newMoa.year_moa_started}
-                onChange={(e) => setNewMoa({ ...newMoa, year_moa_started: e.target.value })}
-                className="w-full p-2 border rounded border-gray-500"
-              />
-            </div>
 
             <div>
-              <label className="text-sm font-medium text-gray-700">MOA Date Notarized</label>
+              <label className="text-sm font-extrabold text-gray-700">MOA Date Notarized</label>
               <input
                 type="date"
                 value={newMoa.date_notarized}
@@ -275,7 +282,7 @@ const AddMoa = ({ isOpen, onClose, onMoaAdded }) => {
             </div>
 
             <div>
-              <label className="text-sm font-medium text-gray-700">Expiry Date</label>
+              <label className="text-sm font-extrabold text-gray-700">Expiry Date</label>
               <input
                 type="date"
                 value={newMoa.expiration_date}
@@ -285,6 +292,91 @@ const AddMoa = ({ isOpen, onClose, onMoaAdded }) => {
             </div>
           </div>
         </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+          <label className="text-sm font-extrabold text-gray-700">Branch</label>
+          <select value={newMoa.moa_status}
+                onChange={(e) => setnewMoa({ ...newMoa, moa_status: e.target.value })}
+                className="w-full p-2 border rounded border-gray-500"
+          >
+            <option value="">Select Campus</option>
+            <option value="Main">PUP Main</option>
+            <option value="Bataan">PUP Bataan</option>
+            <option value="Calauan">PUP Calauan</option>
+            <option value="Lopez">PUP Lopez</option>
+            <option value="Paranaque">PUP Paranaque</option>
+            <option value="Quezon City">PUP Quezon City</option>
+            <option value="Ragay">PUP Ragay</option>
+            <option value="San Juan">PUP San Juan</option>
+            <option value="Sto. Tomas">PUP Sto. Tomas</option>
+            <option value="San Pedro">PUP San Pedro</option>
+            <option value="Santa Rosa">PUP Santa Rosa</option>
+            <option value="Taguig">PUP Taguig</option>
+          </select>
+          </div>
+
+          <div>
+              <label className="text-sm font-extrabold text-gray-700">Course</label>
+              <input
+                type="text"
+                value={newMoa.contact_person}
+                onChange={(e) => setnewMoa({ ...newMoa, contact_person: e.target.value })}
+                className="w-full p-2 border rounded border-gray-500"
+                placeholder="Enter Course"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="text-sm font-extrabold text-gray-700">Remarks</label>
+            <textarea
+              value={newMoa.remarks}
+              onChange={(e) => setNewMoa({ ...newMoa, remarks: e.target.value })}
+              className="w-full p-2 border rounded border-gray-500"
+              placeholder="Remarks"
+            />
+          </div>
+
+          {/* Upload File Section with Drag and Drop */}
+ <div
+        className={`border-2 border-dashed mt-4 rounded-lg p-6 text-center cursor-pointer transition-all ${
+          dragActive ? "border-maroon-500 bg-maroon-50" : "border-gray-300 hover:border-maroon-400"
+        }`}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+      >
+        <input type="file" id="fileInput" className="hidden" onChange={handleFileChange} />
+        
+        {newMoa.file ? (
+          <div className="flex items-center justify-center space-x-2">
+            <FileText size={24} className="text-maroon-600" />
+            <p className="text-gray-700 text-sm font-medium">{newMoa.file.name}</p>
+          </div>
+        ) : (
+          <label htmlFor="fileInput" className="flex flex-col items-center space-y-2">
+            <Upload size={32} className="text-gray-500" />
+            <p className="text-gray-600 text-sm">
+              Drag & drop a file here, or <span className="text-maroon-600 font-semibold cursor-pointer">click to browse</span>
+            </p>
+            <p className="text-xs text-gray-400">Accepted formats: PDF, DOCX, JPG, PNG</p>
+          </label>
+        )}
+      </div>
+
+        {/* NDA Checkbox */}
+        <div className="flex items-center mt-2 space-x-2">
+              <input
+                type="checkbox"
+                id="hasNDA"
+                name="hasNDA"
+                className="w-4 h-4 text-maroon border-gray-300 rounded focus:ring-maroon"
+              />
+              <label htmlFor="hasNDA" className="font-medium text-gray-700 text-sm sm:text-base">
+                Has Non-Disclosure Agreement (NDA)
+              </label>
+            </div>
 
         <div className="flex justify-end mt-6 space-x-2">
           <button 

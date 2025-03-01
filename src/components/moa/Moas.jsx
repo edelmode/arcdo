@@ -2,10 +2,12 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { Trash2, FilePenLine, MoreVertical, PlusCircle,  AlertTriangle, XCircle } from "lucide-react";
+import { Trash2, FilePenLine, MoreVertical, PlusCircle,  AlertTriangle, XCircle, ArrowDownAZ, ArrowUpZA, Minus,FileText  } from "lucide-react";
 import AddMoa from "../moa/AddMoa";
 import EditMoa from "../moa/EditMoa";
 import { useLocation } from "react-router-dom";
+import ViewMoaModal from "../moa/ViewMoaModal";
+
 
 export default function Moa() {
   const role = localStorage.getItem("role");
@@ -18,6 +20,16 @@ export default function Moa() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [originalData, setOriginalData] = useState([]);
+  const [sortOrder, setSortOrder] = useState("asc"); // Sorting state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedMoa, setSelectedMoa] = useState(null);
+
+  const handleRowClick = (moa) => {
+    setSelectedMoa(moa);
+    setIsModalOpen(true);
+  };
+
   const [filters, setFilters] = useState({
     date: "",
     business: "",
@@ -71,6 +83,11 @@ export default function Moa() {
     setIsDeleteModalOpen(true);
     setOpenDropdown(null);
   };
+
+  useEffect(() => {
+    setOriginalData([...moas]); // Save original order on first load
+  }, [moas]); 
+  
 
   useEffect(() => {
       fetchMoa();
@@ -173,6 +190,28 @@ export default function Moa() {
   const startIndex = (currentPage - 1) * MoaPerPage;
   const endIndex = startIndex + MoaPerPage;
   const currentData = filteredMoas.slice(startIndex, endIndex);
+  const [sortedData, setSortedData] = useState(displayedMoa);
+
+  const sortByCompanyName = () => {
+    let sorted;
+  
+    if (sortOrder === "asc") {
+      // Second click: Sort in descending order (Z → A)
+      sorted = [...displayedMoa].sort((a, b) => b.company_name.localeCompare(a.company_name));
+      setSortOrder("desc");
+    } else if (sortOrder === "desc") {
+      // Third click: Reset to original order
+      sorted = [...originalData]; 
+      setSortOrder("default");
+    } else {
+      // First click: Sort in ascending order (A → Z)
+      sorted = [...displayedMoa].sort((a, b) => a.company_name.localeCompare(b.company_name));
+      setSortOrder("asc");
+    }
+  
+    setDisplayedMoa(sorted);
+  };
+  
 
   const handleNext = () => {
     const totalPages = Math.ceil((searchQuery || searchId ? displayedMoa.length : filteredMoas.length) / MoaPerPage);
@@ -297,79 +336,140 @@ export default function Moa() {
           <div className="text-red-500">{error}</div>
         ) : (
           <table className="min-w-full h-auto border-collapse mt-3 hidden md:table">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="px-4 py-2 text-center border-b whitespace-nowrap">COMPANY NAME</th>
-                <th className="px-4 py-2 text-center border-b whitespace-nowrap">ADDRESS</th>
-                <th className="px-2 py-2 text-center border-b whitespace-nowrap">MOA STARTED</th>
-                <th className="px-2 py-2 text-center border-b whitespace-nowrap">MOA NOTORIZED</th>
-                <th className="px-2 py-2 text-center border-b whitespace-nowrap">MOA DRAFT SENT</th>
-                <th className="px-2 py-2 text-center border-b whitespace-nowrap">EXPIRY DATE</th>
-                <th className="px-4 py-2 text-center border-b whitespace-nowrap">TYPE OF MOA</th>
-                <th className="px-4 py-2 text-center border-b whitespace-nowrap">NATURE OF BUSINESS</th>
-                <th className="px-4 py-2 text-center border-b whitespace-nowrap border-r">MOA VALIDITY</th>
-                <th className="px-4 py-2 text-center border-b whitespace-nowrap">CONTACT PERSON</th>
-                <th className="px-4 py-2 text-center border-b whitespace-nowrap">CONTACT NUMBER</th>
-                <th className="px-4 py-2 text-center border-b whitespace-nowrap">EMAIL ADDRESS</th>
-                <th className="px-2 py-2 text-center border-b whitespace-nowrap">REMARKS</th>
-                {notAdmin && (
-                  <th className="px-1 py-2 text-center border-b whitespace-nowrap"></th>
-                )}
-              </tr>
-            </thead>
-            <tbody>
-              {(searchQuery || searchId ? displayedMoa : currentData).map((moa, index) => (
-                <tr key={moa.id} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                  <td className="px-4 py-2 border-t whitespace-nowrap">{moa.company_name}</td>
-                  <td className="px-4 py-2 border-t whitespace-nowrap">{moa.address}</td>
-                  <td className="px-2 py-2 border-t whitespace-nowrap">{new Date(moa.year_moa_started).toLocaleDateString("en-CA")}</td>
-                  <td className="px-2 py-2 border-t whitespace-nowrap">
-                    {moa.date_notarized ? formatDate(moa.date_notarized) : ""}
-                  </td>
-                  <td className="px-2 py-2 border-t whitespace-nowrap">{moa.moa_draft_sent}</td>
-                  <td className="px-2 py-2 border-t whitespace-nowrap">{new Date(moa.expiration_date).toLocaleDateString("en-CA")}</td>
-                  <td className="px-4 py-2 border-t whitespace-nowrap">{moa.type_of_moa}</td>
-                  <td className="px-4 py-2 border-t whitespace-nowrap">{moa.business_type}</td>
-                  <td className="px-4 py-2 border-t whitespace-nowrap">
-                    <span className={`rounded-full px-2 py-1 ${getValidityColor(moa.moa_status)}`}>
-                      {moa.moa_status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-2 border-t whitespace-nowrap">{moa.contact_person}</td>
-                  <td className="px-4 py-2 border-t whitespace-nowrap">{moa.contact_no}</td>
-                  <td className="px-4 py-2 border-t whitespace-nowrap">{moa.email}</td>
-                  <td className="px-2 py-2 border-t whitespace-nowrap">{moa.remarks}</td>
-                  {notAdmin && (
-                    <td className="px-1 py-2 border-t whitespace-nowrap relative">
-                      <button onClick={() => toggleDropdown(moa.id)} className="text-gray-600">
-                        <MoreVertical size={20} />
+        <thead>
+          <tr className="bg-gray-100">
+            <th
+              onClick={sortByCompanyName}
+              className="px-4 py-2 text-center flex border-b gap-3 cursor-pointer"
+            >
+              COMPANY NAME
+              {sortOrder === "asc" ? (
+                <ArrowDownAZ size={20} />
+              ) : sortOrder === "desc" ? (
+                <ArrowUpZA size={20} />
+              ) : (
+                <Minus size={20} />
+              )}
+            </th>
+            <th className="px-4 py-2 text-center border-b whitespace-nowrap">TYPE OF MOA</th>
+            <th className="px-4 py-2 text-center border-b whitespace-nowrap">NATURE OF BUSINESS</th>
+            <th className="px-4 py-2 text-center border-b whitespace-nowrap">COMPANY ADDRESS</th>
+            <th className="px-4 py-2 text-center border-b whitespace-nowrap"></th>
+            <th className="px-4 py-2 text-center border-b whitespace-nowrap">CONTACT PERSON</th>
+            <th className="px-4 py-2 text-center border-b whitespace-nowrap">POSITION</th>
+            <th className="px-4 py-2 text-center border-b whitespace-nowrap">CONTACT NUMBER</th>
+            <th className="px-4 py-2 text-center border-b whitespace-nowrap">EMAIL ADDRESS</th>
+            <th className="px-4 py-2 text-center border-b whitespace-nowrap"></th>
+            <th className="px-4 py-2 text-center border-b whitespace-nowrap">MOA STATUS</th>
+            <th className="px-4 py-2 text-center border-b whitespace-nowrap">CAMPUS</th>
+            <th className="px-4 py-2 text-center border-b whitespace-nowrap">ORIGIN COURSE</th>
+            <th className="px-4 py-2 text-center border-b whitespace-nowrap">VALIDITY</th>
+            <th className="px-2 py-2 text-center border-b whitespace-nowrap">DATE NOTORIZED</th>
+            <th className="px-2 py-2 text-center border-b whitespace-nowrap">EXPIRY DATE</th>
+            <th className="px-2 py-2 text-center border-b whitespace-nowrap">YEAR SUBMITTED</th>
+            <th className="px-2 py-2 text-center border-b whitespace-nowrap">REMARKS</th>
+            {notAdmin && <th className="px-1 py-2 text-center border-b whitespace-nowrap"></th>}
+          </tr>
+        </thead>
+        <tbody>
+          {(searchQuery || searchId ? displayedMoa : currentData).map((moa, index) => (
+            <tr
+              key={moa.id}
+              className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}
+              onClick={() => handleRowClick(moa)}
+              style={{ cursor: "pointer" }} // Makes it clear that the row is clickable
+            >
+              <td className="px-4 py-2 border-t whitespace-nowrap">{moa.company_name}</td>
+              <td className="px-4 py-2 border-t whitespace-nowrap">{moa.type_of_moa}</td>
+              <td className="px-4 py-2 border-t whitespace-nowrap">{moa.business_type}</td>
+              <td className="px-4 py-2 border-t whitespace-nowrap">{moa.address}</td>
+              <td className="px-4 py-2 border-t whitespace-nowrap"></td> {/* Empty column */}
+              <td className="px-4 py-2 border-t whitespace-nowrap">{moa.contact_person}</td>
+              <td className="px-4 py-2 border-t whitespace-nowrap">{moa.position}</td>
+              <td className="px-4 py-2 border-t whitespace-nowrap">{moa.contact_no}</td>
+              <td className="px-4 py-2 border-t whitespace-nowrap">{moa.email}</td>
+              <td className="px-4 py-2 border-t whitespace-nowrap"></td> {/* Empty column */}
+              <td className="px-4 py-2 border-t whitespace-nowrap">
+                <span className={`rounded-full px-2 py-1 ${getValidityColor(moa.moa_status)}`}>
+                  {moa.moa_status}
+                </span>
+              </td>
+              <td className="px-4 py-2 border-t whitespace-nowrap">{moa.campus}</td>
+              <td className="px-4 py-2 border-t whitespace-nowrap">{moa.origin_course}</td>
+              <td className="px-4 py-2 border-t whitespace-nowrap">{moa.validity}</td>
+              <td className="px-2 py-2 border-t whitespace-nowrap">
+                {moa.date_notarized ? formatDate(moa.date_notarized) : ""}
+              </td>
+              <td className="px-2 py-2 border-t whitespace-nowrap">
+                {new Date(moa.expiration_date).toLocaleDateString("en-CA")}
+              </td>
+              <td className="px-2 py-2 border-t whitespace-nowrap">
+                {new Date(moa.year_moa_started).toLocaleDateString("en-CA")}
+              </td>
+              
+              
+              <td className="px-2 py-2 border-t whitespace-nowrap">{moa.remarks}</td>
+  
+              <tr onClick={() => ViewMoaModal(moa)}>
+              {notAdmin && (
+                
+                <td className="px-1 py-2 border-t whitespace-nowrap relative">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevents the row click event
+                      toggleDropdown(moa.id);
+                    }}
+                    className="text-red-900 hover:bg-red-200 rounded p-1 transition duration-200"
+                  >
+                    <MoreVertical size={20} />
+                  </button>
+                  {openDropdown === moa.id && (
+                    <div className="absolute right-5 w-40 bg-white border rounded shadow-lg z-10 bottom-0">
+                       {/* View File Option */}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleView(moa);
+                          }}
+                          className="block w-full text-left px-4 py-0.5 hover:bg-gray-100"
+                        >
+                          <FileText size={16} className="inline-block mr-2" />
+                          View File
+                        </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEdit(moa);
+                        }}
+                        className="block w-full text-left px-4 py-0.5 hover:bg-gray-100"
+                      >
+                        <FilePenLine size={16} className="inline-block mr-2" />
+                        Edit File
                       </button>
-                      {openDropdown === moa.id && (
-                        <div className="absolute right-5 w-40 bg-white border rounded shadow-lg z-10 bottom-0">
-                          <button
-                            onClick={() => handleEdit(moa)}
-                            className="block w-full text-left px-4 py-2 hover:bg-gray-100"
-                          >
-                            <FilePenLine size={16} className="inline-block mr-2" />
-                            Edit File
-                          </button>
-                          <button
-                            onClick={() => confirmDelete(moa)}
-                            className="block w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100"
-                          >
-                            <Trash2 size={16} className="inline-block mr-2" />
-                            Delete File
-                          </button>
-                        </div>
-                      )}
-                    </td>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          confirmDelete(moa);
+                        }}
+                        className="block w-full text-left px-4 py-0.5 text-red-600 hover:bg-gray-100"
+                      >
+                        <Trash2 size={16} className="inline-block mr-2" />
+                        Delete File
+                      </button>
+                    </div>
                   )}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                </td>
+              )}
+            </tr>
+
+            </tr>
+          ))}
+        </tbody>
+      </table>
         )}
       </div>
+
+      
 
       {/* Modals for Adding and Editing */}
       <AddMoa
@@ -396,6 +496,12 @@ export default function Moa() {
         }}
       />
 
+<ViewMoaModal
+        isOpen={isModalOpen}
+        formData={selectedMoa}
+        onClose={() => setIsModalOpen(false)}
+      />
+
       {/* Mobile View */}
       <div className="md:hidden">
         {(searchQuery || searchId ? displayedMoa : currentData).map((moa, index) => (
@@ -414,6 +520,16 @@ export default function Moa() {
                   </button>
                   {openDropdown === moa.id && (
                     <div className="absolute right-0 mt-2 w-40 bg-white border rounded shadow-lg z-10">
+                      <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleView(moa);
+                          }}
+                          className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                        >
+                          <FileText size={16} className="inline-block mr-2" />
+                          View File
+                        </button>
                       <button
                         onClick={() => handleEdit(moa)}
                         className="block w-full text-left px-4 py-2 hover:bg-gray-100"
@@ -437,30 +553,13 @@ export default function Moa() {
               <strong>ID:</strong> {moa.id}
             </div>
             <div className="mt-2">
-              <strong>Address:</strong> {moa.address}
+              <strong>Type of Moa:</strong> {moa.type_of_moa}
             </div>
             <div className="mt-2">
               <strong>Nature of Business:</strong> {moa.business_type}
             </div>
-            <hr className="my-2" />
-            <div className="mt-2 text-center">
-              <strong>MOA Details</strong>
-            </div>
-            <hr className="my-2" />
             <div className="mt-2">
-              <strong>Moa Started:</strong> {new Date(moa.year_moa_started).toLocaleDateString("en-CA")}
-            </div>
-            <div className="mt-2">
-              <strong>Moa Draft Sent:</strong> {moa.moa_draft_sent}
-            </div>
-            <div className="mt-2">
-              <strong>Moa Notorized:</strong> {moa.date_notarized ? formatDate(moa.date_notarized) : ""}
-            </div>
-            <div className="mt-2">
-              <strong>Expiry Date:</strong> {new Date(moa.expiration_date).toLocaleDateString("en-CA")}
-            </div>
-            <div className="mt-2">
-              <strong>Type of Moa:</strong> {moa.type_of_moa}
+              <strong>Company Address:</strong> {moa.address}
             </div>
             <hr className="my-2" />
             <div className="mt-2 text-center">
@@ -471,10 +570,36 @@ export default function Moa() {
               <strong>Contact Person:</strong> {moa.contact_person}
             </div>
             <div className="mt-2">
+              <strong>Position:</strong>
+            </div>
+            <div className="mt-2">
               <strong>Contact Number:</strong> {moa.contact_no}
             </div>
             <div className="mt-2 break-all">
               <strong>Email Address:</strong> {moa.email}
+            </div>
+            <hr className="my-2" />
+            <div className="mt-2 text-center">
+              <strong>MOA Details</strong>
+            </div>
+            <hr className="my-2" />
+            <div className="mt-2">
+              <strong>Campus:</strong> 
+            </div>
+            <div className="mt-2">
+              <strong>Origin Course:</strong> 
+            </div>
+            <div className="mt-2">
+              <strong>Validity:</strong> 
+            </div>
+            <div className="mt-2">
+              <strong>Date Notorized:</strong> {moa.date_notarized ? formatDate(moa.date_notarized) : ""}
+            </div>
+            <div className="mt-2">
+              <strong>Expiry Date:</strong> {new Date(moa.expiration_date).toLocaleDateString("en-CA")}
+            </div>
+            <div className="mt-2">
+              <strong>Year Submitted:</strong> 
             </div>
             <div className="mt-2">
               <strong>Remarks:</strong> {moa.remarks}

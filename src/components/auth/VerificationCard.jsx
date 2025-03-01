@@ -1,9 +1,38 @@
 import { useNavigate } from 'react-router-dom';
 
 export default function VerificationCard({ toggleModal, openSignInModal, openNewPassModal }) {
+    const backgroundImages = [
+        "/bg.ppg",
+        "/bg1.jpg",
+        "/bg2.jpeg"
+    ];
+    const randomImage = backgroundImages[Math.floor(Math.random() * backgroundImages.length)];
+
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center bg-white bg-opacity-50 z-50">
+        <div 
+            className="fixed inset-0 font-montserrat overflow-hidden h-screen flex justify-center items-center px-4"
+            style={{ 
+                backgroundImage: `url('${randomImage}')`, 
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat'
+            }}
+        >
+            <div 
+                className="absolute inset-0 sm:blur-md"
+                style={{ 
+                    backgroundImage: `url('${randomImage}')`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat',
+                    zIndex: -1
+                }}
+            />
+             {/* Overlay for blur effect on mobile */}
+            <div className="absolute inset-0 bg-black bg-opacity-30 sm:bg-opacity-20 md:bg-transparent backdrop-blur-sm sm:backdrop-blur-md md:backdrop-blur-none">
+                
+            </div>
             <div className="relative p-4 w-full max-w-md max-h-full bg-white rounded-lg shadow">
                 {/* Modal header */}
                 <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
