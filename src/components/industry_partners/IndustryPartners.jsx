@@ -69,13 +69,17 @@ export default function IndustryPartners() {
     setLoading(true);
     try {
       const response = await axios.get("http://localhost:3001/api/ip/getPartner");
+      const formattedData = response.data.map(partner => ({
+        ...partner,
+        with_moa_date_notarized: partner.with_moa_date_notarized ? partner.with_moa_date_notarized.split('T')[0] : null,
+        expiry_date: partner.expiry_date ? partner.expiry_date.split('T')[0] : null,
+      }));
       const sortedData = response.data.sort((a, b) => {
-        const dateA = new Date(a.updated_at || a.created_at);
-        const dateB = new Date(b.updated_at || b.created_at);
+        const dateA = new Date(a.updated_at);
+        const dateB = new Date(b.updated_at);
         return dateB - dateA;
       });
       setIndustryPartners(sortedData);
-      setDisplayedPartners(sortedData)
     } catch (err) {
       console.error("Error fetching industry partners:", err);
       setError("Error fetching industry partners");
@@ -86,15 +90,10 @@ export default function IndustryPartners() {
 
   const industryPartnersPerPage = 8;
 
-  const formatDate = (date) => {
-    if (!date) return null; 
-    return new Date(date).toISOString().split("T")[0]; 
-  };
-
   // Apply filters
   const filteredData = industryPartners.filter((partner) => {
     const matchesDate = filters.date
-      ? new Date(partner.year_included).getFullYear().toString() === filters.date
+      ? partner.year_included && partner.year_included.toString().startsWith(filters.date)
       : true;
     const matchesBusiness = filters.business
       ? partner.business_type?.toLowerCase().includes(filters.business.toLowerCase())
@@ -318,8 +317,8 @@ export default function IndustryPartners() {
                   <td className="px-4 py-2 border-t whitespace-nowrap">{partner.preferred_college}</td>
                   <td className="px-4 py-2 border-t whitespace-nowrap">{partner.campus}</td>
                   <td className="px-2 py-2 border-t whitespace-nowrap">{partner.year_submitted}</td>
-                  <td className="px-2 py-2 border-t whitespace-nowrap">{new Date(partner.with_moa_date_notarized).toLocaleDateString("en-CA")}</td>
-                  <td className="px-2 py-2 border-t whitespace-nowrap">{new Date(partner.expiry_date).toLocaleDateString("en-CA")}</td>
+                  <td className="px-2 py-2 border-t whitespace-nowrap">{partner.with_moa_date_notarized}</td>
+                  <td className="px-2 py-2 border-t whitespace-nowrap">{partner.expiry_date}</td>
                   <td className="px-4 py-2 border-t whitespace-nowrap">{partner.business_type}</td>
                   <td className="px-4 py-2 border-t whitespace-nowrap">
                     <span className={`rounded-full px-2 py-1 ${getValidityColor(partner.moa_status)}`}>
@@ -328,7 +327,7 @@ export default function IndustryPartners() {
                   </td>
                   <td className="px-4 py-2 border-t whitespace-nowrap">{partner.contact_person}</td>
                   <td className="px-4 py-2 border-t whitespace-nowrap">{partner.contact_number}</td>
-                  <td className="px-2 py-2 border-t whitespace-nowrap">{new Date(partner.year_included).toLocaleDateString("en-CA")}</td>
+                  <td className="px-2 py-2 border-t whitespace-nowrap">{partner.year_included}</td>
                   <td className="px-4 py-2 border-t whitespace-nowrap">{partner.position_department}</td>
                   <td className="px-4 py-2 border-t whitespace-nowrap">{partner.email_address}</td>
                   <td className="px-4 py-2 border-t whitespace-nowrap">{partner.office_address}</td>
@@ -429,16 +428,16 @@ export default function IndustryPartners() {
             </div>
             <hr className="my-2" />
             <div className="mt-2">
-              <strong>Year Included:</strong> {new Date(partner.year_included).toLocaleDateString("en-CA")}
+              <strong>Year Included:</strong> {partner.year_included}
             </div>
             <div className="mt-2">
               <strong>Year Submitted:</strong> {partner.year_submitted}
             </div>
             <div className="mt-2">
-              <strong>Moa Notarized:</strong> {new Date(partner.with_moa_date_notarized).toLocaleDateString("en-CA")}
+              <strong>Moa Notarized:</strong> {partner.with_moa_date_notarized}
             </div>
             <div className="mt-2">
-              <strong>Expiry Date:</strong> {new Date(partner.expiry_date).toLocaleDateString("en-CA")}
+              <strong>Expiry Date:</strong> {partner.expiry_date}
             </div>
             <hr className="my-2" />
             <div className="mt-2 text-center">
