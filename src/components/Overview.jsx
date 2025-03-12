@@ -39,7 +39,8 @@ const Overview = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const summaryCardsResponse = await axios.get('http://localhost:3001/api/overview/summaryCard');
+        const summaryCardsResponse = await axios.get('http://localhost:3001/api/overview/moaSummary');
+        const summaryCardsResponse1 = await axios.get('http://localhost:3001/api/overview/mainSummary');
         const industryPartnerCardResponse = await axios.get('http://localhost:3001/api/overview/industryPartnerCard');
         const natureOfBusinessesResponse = await axios.get('http://localhost:3001/api/overview/natureOfBusinesses');
         const moaStatusResponse = await axios.get('http://localhost:3001/api/overview/moaStatus');
@@ -49,8 +50,8 @@ const Overview = () => {
           summaryCards: [
             { title: "Host Training Establishments (HTEs)", value: Number(summaryCardsResponse.data.HTEs || 0), change: "Total" },
             { title: "Memorandum of Agreements (MOAs)", value: Number(summaryCardsResponse.data.MOAs || 0), change: "Total" },
-            { title: "On-the-Job Training Coordinators", value: Number(summaryCardsResponse.data.OJT_Coordinators || 0), change: "Total" },
-            { title: "Industry Partners", value: Number(summaryCardsResponse.data.Industry_Partners || 0), change: "Total" },
+            { title: "On-the-Job Training Coordinators", value: Number(summaryCardsResponse1.data.OJT_Coordinators || 0), change: "Total" },
+            { title: "Industry Partners", value: Number(summaryCardsResponse1.data.Industry_Partners || 0), change: "Total" },
           ],
           industryPartnerCard: industryPartnerCardResponse.data,
           natureOfBusinesses: natureOfBusinessesResponse.data,

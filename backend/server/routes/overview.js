@@ -10,7 +10,8 @@ import {
 const router = express.Router();
 
 // OVERVIEW DATA ROUTES
-router.get('/summaryCard', getSummaryCards);
+router.get('/moaSummary', getSummaryCards);
+router.get('/mainSummary', getSummaryCards);
 router.get('/industryPartnerCard', getIndustrypartnercard); // Fix route name
 router.get('/natureOfBusinesses', getNatureOfBusinesses);
 router.get('/moaStatus', getMoaStatus);

@@ -1,24 +1,45 @@
-import {mainDB, moaDB} from '../config/db.js';
+import { mainDB, moaDB } from '../config/db.js';
 
 export const getSummaryCards = async (req, res) => {
-  let connection;
+  let mainConnection;
+  let moaConnection;
+
   try {
-    connection = await mainDB();
-    const [summaryCards] = await connection.query(`
+    // CONNECT TO BOTH DATABASES
+    mainConnection = await mainDB();
+    moaConnection = await moaDB();
+
+    // EXECUTE QUERIES FROM moaDB FOR HTEs & MOAs
+    const [moaSummary] = await moaConnection.query(`
       SELECT 
-        (SELECT COUNT(*) FROM hte) AS HTEs,
-        (SELECT COUNT(*) FROM moa) AS MOAs,
+        (SELECT COUNT(*) FROM moa_documents) AS HTEs,
+        (SELECT COUNT(*) FROM moa_documents) AS MOAs
+    `);
+
+    // EXECUTE QUERIES FROM mainDB FOR OJT_Coordinators & Industry_Partners
+    const [mainSummary] = await mainConnection.query(`
+      SELECT 
         (SELECT COUNT(*) FROM ojt_coordinator) AS OJT_Coordinators,
         (SELECT COUNT(*) FROM industry_partner) AS Industry_Partners
-    `); 
-    res.status(200).json(summaryCards[0]);
+    `);
+
+    // MERGE THE RESULTS INTO ONE OBJECT
+    const summaryCards = {
+      ...moaSummary[0], // HTEs & MOAs FROM moaDB
+      ...mainSummary[0] // OJT_Coordinators & Industry_Partners FROM mainDB
+    };
+
+    res.status(200).json(summaryCards);
   } catch (error) {
     console.error('Error fetching summary cards data:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   } finally {
-    if (connection) connection.end();
+    // CLOSE CONNECTIONS TO PREVENT MEMORY LEAKS
+    if (mainConnection) await mainConnection.end();
+    if (moaConnection) await moaConnection.end();
   }
 };
+
 
 export const getIndustrypartnercard = async (req, res) => {
   let connection;
