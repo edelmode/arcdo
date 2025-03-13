@@ -21,7 +21,7 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "fontawesome-free": "^1.0.4",
-    "framer-motion": "^12.4.10",
+    "framer-motion": "^12.5.0",
     "heroicons": "^2.2.0",
     "jsonwebtoken": "^9.0.2",
     "jspdf": "^2.5.2",

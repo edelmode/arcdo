@@ -1,9 +1,43 @@
-import {mainDB} from '../config/db.js';
+import { mainDB } from '../config/db.js';
+import nodemailer from 'nodemailer';
+
+// Create a transporter for nodemailer
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+    },
+});
+
+// Function to send email notification
+const sendEmailNotification = async (email_address, company_name, remarks) => {
+    const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: email_address,
+        subject: 'Update on Your HTE Record',
+        text: `Dear ${company_name},
+
+We would like to inform you that there has been an update to the remarks on your HTE record. Please review the latest remarks as soon as possible:
+
+Remarks: ${remarks}
+
+Best regards,
+ARCDO`,
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log('Email sent successfully to', email_address);
+    } catch (error) {
+        console.error('Error sending email:', error);
+    }
+};
 
 export const getHte = async (req, res) => {
     let connection;
     try {
-        const connection = await mainDB();
+        connection = await mainDB();
         const [hte] = await connection.query("SELECT * FROM hte");
         res.status(200).json(hte);
     } catch (error) {
@@ -18,7 +52,7 @@ export const getHteById = async (req, res) => {
     let connection;
     try {
         const { id } = req.params;
-        const connection = await mainDB();
+        connection = await mainDB();
         const [hte] = await connection.query("SELECT * FROM hte WHERE id = ?", [id]);
         
         if (hte.length === 0) {
@@ -103,6 +137,12 @@ export const addHte = async (req, res) => {
             ]
         );
 
+        // Send email notification if remarks is not empty or null
+        if (remarks) {
+            console.log('Sending email to', email_address);
+            await sendEmailNotification(email_address, company_name, remarks);
+        }
+
         res.status(201).json({ id: result.insertId, message: "HTE added successfully." });
     } catch (error) {
         console.error("Error adding HTE:", error);
@@ -186,6 +226,12 @@ export const updateHte = async (req, res) => {
             return res.status(404).json({ error: "HTE not found." });
         }
 
+        // Send email notification if remarks is not empty or null
+        if (remarks) {
+            console.log('Sending email to', email_address);
+            await sendEmailNotification(email_address, company_name, remarks);
+        }
+
         res.status(200).json({ message: "HTE updated successfully." });
     } catch (error) {
         console.error("Error updating HTE:", error);
@@ -200,7 +246,7 @@ export const deleteHte = async (req, res) => {
     let connection;
     try {
         const { id } = req.params;
-        const connection = await mainDB();
+        connection = await mainDB();
         
         // Check if the HTE record exists
         const [existingHte] = await connection.query("SELECT * FROM hte WHERE id = ?", [id]);
