@@ -5,7 +5,7 @@ export const getSummaryCards = async (req, res) => {
   let moaConnection;
 
   try {
-    // CONNECT TO BOTH DATABASES
+    // CONNECT TO BOTH DATABASES 
     mainConnection = await mainDB();
     moaConnection = await moaDB();
 
@@ -68,11 +68,11 @@ export const getIndustrypartnercard = async (req, res) => {
 export const getNatureOfBusinesses = async (req, res) => {
   let connection;
   try {
-    connection = await mainDB();
+    connection = await moaDB();
     const [natureOfBusinesses] = await connection.query(`
-      SELECT business_type AS category, COUNT(*) AS count 
-      FROM hte 
-      GROUP BY business_type 
+      SELECT nature_of_business AS category, COUNT(*) AS count 
+      FROM moa_info 
+      GROUP BY nature_of_business
       ORDER BY count DESC
       LIMIT 5
     `);
@@ -88,17 +88,16 @@ export const getNatureOfBusinesses = async (req, res) => {
 export const getMoaStatus = async (req, res) => {
   let connection;
   try {
-    connection = await mainDB();
+    connection = await moaDB();
     const [moaStatus] = await connection.query(`
-      SELECT moa_status AS STATUS, COUNT(*) * 100.0 / (SELECT COUNT(*) FROM moa) AS percentage, 
+      SELECT status AS STATUS, COUNT(*) * 100.0 / (SELECT COUNT(*) FROM moa_info) AS percentage, 
       CASE 
-        WHEN moa_status = 'Completed' THEN '#FFDF00'
-        WHEN moa_status = 'For Renewal' THEN '#DAA520'
-        WHEN moa_status = 'For Revision' THEN '#80000'
-        ELSE '#FFFFFF'  
+        WHEN status = 'Active' THEN '#FFDF00'
+        WHEN status = 'Expiry' THEN '#DAA520'
+        ELSE '#80000'
       END AS color
-      FROM moa
-      GROUP BY moa_status
+      FROM moa_info
+      GROUP BY status
     `);
     res.status(200).json(moaStatus);
   } catch (error) {
