@@ -110,11 +110,25 @@ export const getMoaStatus = async (req, res) => {
 
 export const getTableData = async (req, res) => {
   let connection;
+  let moaConnection;
+
   try {
     connection = await mainDB();
-    const [hteTableData] = await connection.query(`
-      SELECT id AS DOC, company_name AS COMPANY, office_address AS ADDRESS, year_submitted AS DATE, business_type AS BUSINESS, moa_status AS STATUS FROM hte WHERE moa_status = 'On hold' or moa_status = 'Rejected'
-    `);
+    moaConnection = await moaDB();
+
+    const [hteTableData] = await moaConnection.query(`
+         SELECT 
+        m.moa_id AS DOC, 
+        m.name AS COMPANY, 
+        m.address AS ADDRESS, 
+        v.year_submitted AS DATE, 
+        m.nature_of_business AS BUSINESS, 
+        m.status AS STATUS 
+    FROM moa_info AS m
+    JOIN moa_validity_period AS v ON m.moa_id = v.moa_id 
+    WHERE m.status = 'Expired' OR m.status = 'Expiry' 
+    `); 
+
 
     const [industryPartnersTableData] = await connection.query(`
       SELECT id AS DOC, company_name AS COMPANY, office_address AS ADDRESS, expiry_date AS DATE, business_type AS BUSINESS, moa_status AS STATUS FROM industry_partner WHERE moa_status = 'On hold' or moa_status = 'Rejected'
