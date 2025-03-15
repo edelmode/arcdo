@@ -17,9 +17,9 @@ export default function ResetPassword() {
 
     // Array of placeholder images
     const bgImages = [
-        "/public/bg.png",
-        "/public/bg1.jpg",
-        "/public/bg2.jpeg"
+        "/Public/arcdo.jpg",
+        "/Public/bg1.jpg",
+        "/Public/bg2.jpeg"
     ];
     const randomBg = bgImages[Math.floor(Math.random() * bgImages.length)];
 

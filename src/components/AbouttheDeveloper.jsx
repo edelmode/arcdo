@@ -4,35 +4,35 @@ import { motion } from "framer-motion";
 const teamSections = [
   { 
     title: "UI/UX", 
-    names: ["Gian Carlo Estrella"],
-    images: ["/Public/bg1.jpg"],
-    descriptions: ["A passionate UI/UX designer focused on creating intuitive and engaging user experiences."]
+    names: ["Gian Carlo B. Estrella"],
+    images: ["/Public/gian.jpg"],
+    descriptions: ["I'm Gian, I love mixing design concepts and I'm a member of the one-man UI/UX Team that designed the ARCDO Dashboard."]
   },
   { 
     title: "Database Administrator", 
-    names: ["Carla Jeanne Goleña"],
-    images: ["/images/db-admin.jpg"],
-    descriptions: ["An expert in database management, ensuring data integrity and security."]
+    names: ["Carla Jeanne B. Goleña"],
+    images: ["/Public/carla.jpg"],
+    descriptions: ["I'm Carla, I specialize in database management and backend integration. I designed and managed the database for the ARCDO Dashboard, ensuring seamless connectivity with the backend."]
   },
   { 
     title: "Front End Developers", 
-    names: ["Edel Mae Tapar", "Ahijah Reign Reyes", "Noah Dorado"],
-    images: ["/images/frontend1.jpg", "/images/frontend2.jpg", "/images/frontend3.jpg"],
+    names: ["Edel Mae T. Tapar", "Ahijah Reign M. Reyes", "Noah B. Dorado"],
+    images: ["/Public/Del.jpg", "/Public/reign.jpeg", "/Public/nowi.jpeg"],
     descriptions: [
-      "Front-end developer with a passion for building interactive and responsive interfaces.",
-      "Creative coder who turns ideas into visually appealing web applications.",
-      "Dedicated to optimizing user experience through efficient front-end solutions."
+      "Hello! Call me Del, a part of the front-end developer team responsible for bringing designs and ideas to life, making the website engaging and user-friendly.",
+      "I'm Reign, part of the front-end dev team for the ARCDO website. I help build and refine the user interface to keep things smooth and functional.",
+      "I'm Noah, I love dragons and I'm a member of the Front-End Team that developed the ARCDO Dashboard."
     ]
   },
   { 
     title: "Back End Developers", 
-    names: ["Rowel Dacut", "Cristine Ilagan", "Nathaniel Kingsley Pulan", "Edrian Infante"],
-    images: ["/images/backend1.jpg", "/images/backend2.jpg", "/images/backend3.jpg", "/images/backend4.jpg"],
+    names: ["Rowel B. Dacut", "Christine S. Ilagan", "Nathaniel Kingsley Pulan", "Edrian Infante"],
+    images: ["/Public/rowel.png", "/Public/tine.jpg", "/Public/nath.jpg", "/Public/ed.jpg"],
     descriptions: [
-      "Back-end specialist ensuring robust and scalable server-side functionality.",
-      "Passionate about API development and database optimization.",
-      "Loves solving complex backend challenges to enhance system performance.",
-      "Ensures seamless data flow and server reliability."
+      "I'm Rowel Pogi, a Backend Developer working on the ARCDO Dashboard. My role includes managing data and fetching data for the Overview section.",
+      "I'm Christine, a Back-End Developer for the ARCDO Dashboard. I handle data fetching, backend functions, and feature implementation.",
+      "I'm Nath, a Back-End Developer for the ARCDO. I fetch the data, write the code, and add or implement new features.",
+      "I'm Ed, a Backend Developer working on the ARCDO Dashboard. Role includes managing data fetching & rolling out new features."
     ]
   },
 ];

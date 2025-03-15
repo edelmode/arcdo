@@ -10,7 +10,7 @@ export default function Signin() {
     const [passwordVisible, setPasswordVisible] = useState(false);
 
     // Array of background images
-    const backgroundImages = ["/bg.png", "/bg1.jpg", "/bg2.jpeg"];
+    const backgroundImages = ["/Public/arcdo.jpg", "/Public/bg1.jpg", "/Public/bg2.jpeg"];
     const randomImage = backgroundImages[Math.floor(Math.random() * backgroundImages.length)];
 
     useEffect(() => {

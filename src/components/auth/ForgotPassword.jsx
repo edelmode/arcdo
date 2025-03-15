@@ -8,7 +8,7 @@ export default function ForgotPassword() {
     const [message, setMessage] = useState('');
     const [isSubmitted, setIsSubmitted] = useState(false);
 
-    const backgroundImages = ["/bg.png", "/bg1.jpg", "/bg2.jpeg"];
+    const backgroundImages = ["/arcdo.jpg", "/bg1.jpg", "/bg2.jpeg"];
     const randomImage = backgroundImages[Math.floor(Math.random() * backgroundImages.length)];
 
     const handleEmailChange = (e) => setEmail(e.target.value);

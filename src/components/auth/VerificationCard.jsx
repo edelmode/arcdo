@@ -2,9 +2,9 @@ import { useNavigate } from 'react-router-dom';
 
 export default function VerificationCard({ toggleModal, openSignInModal, openNewPassModal }) {
     const backgroundImages = [
-        "/bg.ppg",
-        "/bg1.jpg",
-        "/bg2.jpeg"
+        "/Public/arcdo.jpg",
+        "/Public/bg1.jpg",
+        "/Public/bg2.jpeg"
     ];
     const randomImage = backgroundImages[Math.floor(Math.random() * backgroundImages.length)];
 
