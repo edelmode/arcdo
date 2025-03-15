@@ -152,6 +152,17 @@ const EditHTE = ({ isOpen, onClose, editingHTE, setEditingHTE, onHteEdited }) =>
           </div>
 
           <div>
+            <label className="text-sm font-medium text-gray-700">Email Address</label>
+            <input
+              type="email"
+              value={editingHTE.email_address}
+              onChange={(e) => setEditingHTE({ ...editingHTE, email_address: e.target.value })}
+              className="w-full p-2 border rounded border-gray-500"
+              placeholder="Email Address"
+            />
+          </div>
+
+          <div>
             <label className="text-sm font-medium text-gray-700">Office Address</label>
             <input
               type="text"
