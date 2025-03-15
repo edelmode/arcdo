@@ -1,24 +1,44 @@
-import {mainDB, moaDB} from '../config/db.js';
+import { mainDB, moaDB } from '../config/db.js';
 
 export const getSummaryCards = async (req, res) => {
-  let connection;
+  let mainConnection;
+  let moaConnection;
+
   try {
-    connection = await mainDB();
-    const [summaryCards] = await connection.query(`
+    // CONNECT TO BOTH DATABASES 
+    mainConnection = await mainDB();
+    moaConnection = await moaDB();
+
+    // EXECUTE QUERIES FROM moaDB FOR HTEs & MOAs
+    const [moaSummary] = await moaConnection.query(`
+        SELECT COUNT(*) AS MOAs FROM moa_documents
+    `);
+
+    // EXECUTE QUERIES FROM mainDB FOR OJT_Coordinators & Industry_Partners
+    const [mainSummary] = await mainConnection.query(`
       SELECT 
         (SELECT COUNT(*) FROM hte) AS HTEs,
-        (SELECT COUNT(*) FROM moa) AS MOAs,
         (SELECT COUNT(*) FROM ojt_coordinator) AS OJT_Coordinators,
         (SELECT COUNT(*) FROM industry_partner) AS Industry_Partners
-    `); 
-    res.status(200).json(summaryCards[0]);
+    `);
+
+    // MERGE THE RESULTS INTO ONE OBJECT
+    const summaryCards = {
+      ...moaSummary[0], // HTEs & MOAs FROM moaDB
+      ...mainSummary[0] // OJT_Coordinators & Industry_Partners FROM mainDB
+    };
+
+    res.status(200).json(summaryCards);
   } catch (error) {
     console.error('Error fetching summary cards data:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   } finally {
-    if (connection) connection.end();
+    // CLOSE CONNECTIONS TO PREVENT MEMORY LEAKS
+    if (mainConnection) await mainConnection.end();
+    if (moaConnection) await moaConnection.end();
   }
 };
+
 
 export const getIndustrypartnercard = async (req, res) => {
   let connection;
@@ -47,11 +67,11 @@ export const getIndustrypartnercard = async (req, res) => {
 export const getNatureOfBusinesses = async (req, res) => {
   let connection;
   try {
-    connection = await mainDB();
+    connection = await moaDB();
     const [natureOfBusinesses] = await connection.query(`
-      SELECT business_type AS category, COUNT(*) AS count 
-      FROM hte 
-      GROUP BY business_type 
+      SELECT nature_of_business AS category, COUNT(*) AS count 
+      FROM moa_info 
+      GROUP BY nature_of_business
       ORDER BY count DESC
       LIMIT 5
     `);
@@ -67,17 +87,16 @@ export const getNatureOfBusinesses = async (req, res) => {
 export const getMoaStatus = async (req, res) => {
   let connection;
   try {
-    connection = await mainDB();
+    connection = await moaDB();
     const [moaStatus] = await connection.query(`
-      SELECT moa_status AS STATUS, COUNT(*) * 100.0 / (SELECT COUNT(*) FROM moa) AS percentage, 
+      SELECT status AS STATUS, COUNT(*) * 100.0 / (SELECT COUNT(*) FROM moa_info) AS percentage, 
       CASE 
-        WHEN moa_status = 'Completed' THEN '#FFDF00'
-        WHEN moa_status = 'For Renewal' THEN '#DAA520'
-        WHEN moa_status = 'For Revision' THEN '#80000'
-        ELSE '#FFFFFF'  
+        WHEN status = 'Active' THEN '#FFDF00'
+        WHEN status = 'Expiry' THEN '#DAA520'
+        ELSE '#80000'
       END AS color
-      FROM moa
-      GROUP BY moa_status
+      FROM moa_info
+      GROUP BY status
     `);
     res.status(200).json(moaStatus);
   } catch (error) {
@@ -90,11 +109,16 @@ export const getMoaStatus = async (req, res) => {
 
 export const getTableData = async (req, res) => {
   let connection;
+  let moaConnection;
+
   try {
     connection = await mainDB();
+    moaConnection = await moaDB();
+
     const [hteTableData] = await connection.query(`
-      SELECT id AS DOC, company_name AS COMPANY, office_address AS ADDRESS, year_submitted AS DATE, business_type AS BUSINESS, moa_status AS STATUS FROM hte WHERE moa_status = 'On hold' or moa_status = 'Rejected'
+        SELECT id AS DOC, company_name AS COMPANY, office_address AS ADDRESS, year_submitted AS DATE, business_type AS BUSINESS, moa_status AS STATUS FROM hte WHERE moa_status = 'On hold' or moa_status = 'Rejected'
     `);
+
 
     const [industryPartnersTableData] = await connection.query(`
       SELECT id AS DOC, company_name AS COMPANY, office_address AS ADDRESS, expiry_date AS DATE, business_type AS BUSINESS, moa_status AS STATUS FROM industry_partner WHERE moa_status = 'On hold' or moa_status = 'Rejected'

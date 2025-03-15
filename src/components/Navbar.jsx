@@ -30,6 +30,7 @@ export default function NavbarTopConfigurationPage() {
   
   // Check if current page is overview
   const isOverviewPage = location.pathname.includes('/overview');
+  const isDeveloperPage = location.pathname.includes('/about-the-developer');
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -399,90 +400,95 @@ export default function NavbarTopConfigurationPage() {
 
       {/* Right side */}
       <div className="ml-auto flex items-center text-white">
-        {/* Search Bar for Desktop */}
-        <div className="hidden lg:flex items-center rounded-2xl border border-gray-300 mr-5">
-          <Search
-            className="h-5 w-5 mr-2 ml-2 hover:text-gray-400 transition duration-300"
-            onClick={() => setIsSearchOpen(!isSearchOpen)} // Toggle search visibility
-          />
-                  {isSearchOpen && (
-                    <div className="relative">
-                      <input
-                        type="text"
-                        placeholder="Search..."
-                        className="px-4 py-2 rounded-2xl text-md text-black focus:outline-none focus:ring-2 focus:ring-red-800-400"
-                        value={searchQuery}
-                        onChange={(e) => handleSearch(e.target.value)}
-                      />
+        {/* Only show search and export if not on developer page */}
+        {!isDeveloperPage && (
+          <>
+            {/* Search Bar for Desktop */}
+            <div className="hidden lg:flex items-center rounded-2xl border border-gray-300 mr-5">
+              <Search
+                className="h-5 w-5 mr-2 ml-2 hover:text-gray-400 transition duration-300"
+                onClick={() => setIsSearchOpen(!isSearchOpen)} // Toggle search visibility
+              />
+                      {isSearchOpen && (
+                        <div className="relative">
+                          <input
+                            type="text"
+                            placeholder="Search..."
+                            className="px-4 py-2 rounded-2xl text-md text-black focus:outline-none focus:ring-2 focus:ring-red-800-400"
+                            value={searchQuery}
+                            onChange={(e) => handleSearch(e.target.value)}
+                          />
 
-                      {searchQuery && (
-                        <div 
-                          className="absolute top-9 left-[10%] transform -translate-x-[76%] bg-white shadow-lg p-3 rounded-lg w-96 max-h-60 overflow-auto">
-                          {filteredData.length > 0 ? (
-                            filteredData.map((item, index) => (
-                              <div
-                                key={index}
-                                className="p-3 border-b cursor-pointer hover:bg-gray-200 transition duration-300"
-                                onClick={() => handleSearchClick(item)}
-                              >
-                                <p className="text-black">{item.company_name || item.name || item.title}</p>
-                              </div>
-                            ))
-                          ) : (
-                            <p className="text-black">No results found.</p>
+                          {searchQuery && (
+                            <div 
+                              className="absolute top-9 left-[10%] transform -translate-x-[76%] bg-white shadow-lg p-3 rounded-lg w-96 max-h-60 overflow-auto">
+                              {filteredData.length > 0 ? (
+                                filteredData.map((item, index) => (
+                                  <div
+                                    key={index}
+                                    className="p-3 border-b cursor-pointer hover:bg-gray-200 transition duration-300"
+                                    onClick={() => handleSearchClick(item)}
+                                  >
+                                    <p className="text-black">{item.company_name || item.name || item.title}</p>
+                                  </div>
+                                ))
+                              ) : (
+                                <p className="text-black">No results found.</p>
+                              )}
+                            </div>
                           )}
                         </div>
                       )}
-                    </div>
-                  )}
-        </div>
+            </div>
 
-        {/* Icons for Desktop */}
-        <ul className="hidden lg:flex items-center space-x-5 text-white">
-          <li>
-            <button 
-              className="text-md hover:text-gray-400 transition duration-300"
-              onClick={handleRefreshClick}
-            >
-              <RotateCcw className="h-5 w-5" />
-            </button>
-          </li>
-
-          {canExport && !isOverviewPage && (
-            <li>
-              {/* Export Dropdown for Desktop */}
-              <div className="relative">
-                <button
-                  className="text-md hover:text-gray-400 transition duration-300 flex items-center"
-                  onClick={() => setIsExportOpen(!isExportOpen)}
+            {/* Icons for Desktop */}
+            <ul className="hidden lg:flex items-center space-x-5 text-white">
+              <li>
+                <button 
+                  className="text-md hover:text-gray-400 transition duration-300"
+                  onClick={handleRefreshClick}
                 >
-                  <FileText className="h-5 w-5 mr-1" />
-                  <span>Export</span>
+                  <RotateCcw className="h-5 w-5" />
                 </button>
-                {isExportOpen && (
-                  <div className="absolute right-0 mt-2 bg-white rounded-lg shadow-lg p-2">
+              </li>
+
+              {canExport && !isOverviewPage && (
+                <li>
+                  {/* Export Dropdown for Desktop */}
+                  <div className="relative">
                     <button
-                      className="inline-flex items-center space-x-1 text-black hover:text-red-800 transition duration-300"
-                      onClick={() => handleExportClick("Excel")}
+                      className="text-md hover:text-gray-400 transition duration-300 flex items-center"
+                      onClick={() => setIsExportOpen(!isExportOpen)}
                     >
-                      <span>as</span>
-                      <span>Excel</span>
+                      <FileText className="h-5 w-5 mr-1" />
+                      <span>Export</span>
                     </button>
-                    <button
-                      className="inline-flex items-center space-x-1 text-black hover:text-red-800 transition duration-300"
-                      onClick={() => handleExportClick("PDF")}
-                    >
-                      <span>as</span>
-                      <span>PDF</span>
-                    </button>
+                    {isExportOpen && (
+                      <div className="absolute right-0 mt-2 bg-white rounded-lg shadow-lg p-2">
+                        <button
+                          className="inline-flex items-center space-x-1 text-black hover:text-red-800 transition duration-300"
+                          onClick={() => handleExportClick("Excel")}
+                        >
+                          <span>as</span>
+                          <span>Excel</span>
+                        </button>
+                        <button
+                          className="inline-flex items-center space-x-1 text-black hover:text-red-800 transition duration-300"
+                          onClick={() => handleExportClick("PDF")}
+                        >
+                          <span>as</span>
+                          <span>PDF</span>
+                        </button>
+                      </div>
+                    )}
+
                   </div>
-                )}
+                </li>
+              )}
 
-              </div>
-            </li>
-          )}
-
-        </ul>
+            </ul>
+          </>
+        )}
 
         {/* Settings Menu for Small Devices */}
         <div className="lg:hidden">
@@ -498,86 +504,88 @@ export default function NavbarTopConfigurationPage() {
               className="absolute right-3 top-12 bg-white rounded-lg shadow-lg p-3"
             >
               <ul className="space-y-3">
-                <li>
-                  <button className="flex items-center text-black hover:text-red-800 transition duration-300"
-                    onClick={handleRefreshClick}>
-                    <RotateCcw className="h-5 w-5 mr-2" />
-                    <span>Refresh</span>
-                  </button>
-                </li>
+                {!isDeveloperPage && (
+                  <>
+                    <li>
+                      <button className="flex items-center text-black hover:text-red-800 transition duration-300"
+                        onClick={handleRefreshClick}>
+                        <RotateCcw className="h-5 w-5 mr-2" />
+                        <span>Refresh</span>
+                      </button>
+                    </li>
 
-                <li className="relative">
-                  <button
-                    className="flex items-center text-black hover:text-red-800 transition duration-300"
-                    onClick={() => setIsSearchOpen(!isSearchOpen)} 
-                  >
-                    <Search className="h-5 w-5 mr-2" />
-                    <span>Search</span>
-                  </button>
+                    <li className="relative">
+                      <button
+                        className="flex items-center text-black hover:text-red-800 transition duration-300"
+                        onClick={() => setIsSearchOpen(!isSearchOpen)} 
+                      >
+                        <Search className="h-5 w-5 mr-2" />
+                        <span>Search</span>
+                      </button>
 
-                  {isSearchOpen && (
-                    <div className="relative">
-                      <input
-                        type="text"
-                        placeholder="Search..."
-                        className="mt-2 px-4 py-2 rounded-2xl text-md text-black w-71 focus:outline-none focus:ring-2 focus:ring-red-800"
-                        value={searchQuery}
-                        onChange={(e) => handleSearch(e.target.value)}
-                      />
+                      {isSearchOpen && (
+                        <div className="relative">
+                          <input
+                            type="text"
+                            placeholder="Search..."
+                            className="mt-2 px-4 py-2 rounded-2xl text-md text-black w-71 focus:outline-none focus:ring-2 focus:ring-red-800"
+                            value={searchQuery}
+                            onChange={(e) => handleSearch(e.target.value)}
+                          />
 
-                      {searchQuery && (
-                        <div 
-                          className="absolute left-0 mt-1 bg-white shadow-lg p-3 rounded-lg w-71 max-h-60 overflow-auto z-50">
-                          {filteredData.length > 0 ? (
-                            filteredData.map((item, index) => (
-                              <div
-                                key={index}
-                                className="p-3 border-b cursor-pointer hover:bg-gray-200 transition duration-300"
-                                onClick={() => handleSearchClick(item)}
-                              >
-                                <p className="text-black">{item.company_name || item.name || item.title}</p>
-                              </div>
-                            ))
-                          ) : (
-                            <p className="text-black">No results found.</p>
+                          {searchQuery && (
+                            <div 
+                              className="absolute left-0 mt-1 bg-white shadow-lg p-3 rounded-lg w-71 max-h-60 overflow-auto z-50">
+                              {filteredData.length > 0 ? (
+                                filteredData.map((item, index) => (
+                                  <div
+                                    key={index}
+                                    className="p-3 border-b cursor-pointer hover:bg-gray-200 transition duration-300"
+                                    onClick={() => handleSearchClick(item)}
+                                  >
+                                    <p className="text-black">{item.company_name || item.name || item.title}</p>
+                                  </div>
+                                ))
+                              ) : (
+                                <p className="text-black">No results found.</p>
+                              )}
+                            </div>
                           )}
                         </div>
                       )}
-                    </div>
-                  )}
-                </li>
+                    </li>
 
-                {canExport && !isOverviewPage && (
-                  <li>
-                    <div className="relative">
-                      <button
-                        className="flex items-center text-black hover:text-red-800 transition duration-300"
-                        onClick={() => setIsExportOpen(!isExportOpen)}
-                      >
-                        <FileText className="h-5 w-5 mr-2" />
-                        <span>Export</span>
-                      </button>
-                      {isExportOpen && (
-                        <div className="absolute left-0 mt-2 bg-white rounded-lg shadow-lg p-2">
+                    {canExport && !isOverviewPage && (
+                      <li>
+                        <div className="relative">
                           <button
-                            className="block w-full text-black hover:text-red-800 transition duration-300"
-                            onClick={() => handleExportClick("Excel")}
+                            className="flex items-center text-black hover:text-red-800 transition duration-300"
+                            onClick={() => setIsExportOpen(!isExportOpen)}
                           >
-                            as Excel
+                            <FileText className="h-5 w-5 mr-2" />
+                            <span>Export</span>
                           </button>
-                          <button
-                            className="block w-full text-black hover:text-red-800 transition duration-300"
-                            onClick={() => handleExportClick("PDF")}
-                          >
-                            as PDF
-                          </button>
+                          {isExportOpen && (
+                            <div className="absolute left-0 mt-2 bg-white rounded-lg shadow-lg p-2">
+                              <button
+                                className="block w-full text-black hover:text-red-800 transition duration-300"
+                                onClick={() => handleExportClick("Excel")}
+                              >
+                                as Excel
+                              </button>
+                              <button
+                                className="block w-full text-black hover:text-red-800 transition duration-300"
+                                onClick={() => handleExportClick("PDF")}
+                              >
+                                as PDF
+                              </button>
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
-                  </li>
+                      </li>
+                    )}
+                  </>
                 )}
-
-
               </ul>
             </div>
           )}
