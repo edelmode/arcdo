@@ -17,7 +17,7 @@ const teamSections = [
   { 
     title: "Front End Developers", 
     names: ["Edel Mae T. Tapar", "Ahijah Reign M. Reyes", "Noah B. Dorado"],
-    images: ["/Public/Del.jpg", "/Public/reign.jpeg", "/Public/nowi.jpeg"],
+    images: ["/Public/Del.jpg", "/Public/reign.png", "/Public/nowi.png"],
     descriptions: [
       "Hello! Call me Del, a part of the front-end developer team responsible for bringing designs and ideas to life, making the website engaging and user-friendly.",
       "I'm Reign, part of the front-end dev team for the ARCDO website. I help build and refine the user interface to keep things smooth and functional.",
@@ -27,7 +27,7 @@ const teamSections = [
   { 
     title: "Back End Developers", 
     names: ["Rowel B. Dacut", "Christine S. Ilagan", "Nathaniel Kingsley Pulan", "Edrian Infante"],
-    images: ["/Public/rowel.png", "/Public/tine.jpg", "/Public/nath.jpg", "/Public/ed.jpg"],
+    images: ["/Public/rowel.png", "/Public/tine.png", "/Public/nath.jpg", "/Public/ed.jpg"],
     descriptions: [
       "I'm Rowel Pogi, a Backend Developer working on the ARCDO Dashboard. My role includes managing data and fetching data for the Overview section.",
       "I'm Christine, a Back-End Developer for the ARCDO Dashboard. I handle data fetching, backend functions, and feature implementation.",
@@ -41,7 +41,7 @@ const AbouttheDeveloper = () => {
   const [selectedMember, setSelectedMember] = useState(null);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 sm:p-8 lg:pl-[16rem] mt-10">
+    <div className="min-h-screen bg-gray-50 p-4 sm:p-8 lg:pl-[17rem] mt-10">
       <motion.div 
         className="max-w-6xl mx-auto bg-white p-6 sm:p-8 rounded-lg shadow-lg"
         initial={{ opacity: 0, y: 20 }}
@@ -51,7 +51,7 @@ const AbouttheDeveloper = () => {
         <h1 className="text-3xl sm:text-4xl font-extrabold mb-4 text-gray-900 text-center">🚀 Meet the Developers</h1>
         <p className="text-gray-700 mb-6 text-base sm:text-lg leading-relaxed text-center">
           This dashboard for the <span className="font-semibold">Alumni Relations and Career Development Office (ARCDO)</span> of the Polytechnic University of the Philippines was created by select 4th Year <span className="font-semibold">Bachelor of Science Computer Engineering (BSCOE)</span> students as part of their requirements 
-          from the course <span className="font-semibold">CMPE 40173 Database System Implementation</span> under their section <span className="font-semibold">BSCOE 4-2</span>.
+          from the course <span className="font-semibold">CMPE 40173 Database System Implementation.</span> It was made in the <i>1st semester of the academic year 2024-2025</i> by the CpE batch of 2021 section <span className="font-semibold">BSCOE 4-2.</span>
         </p>
         
         {teamSections.map((section, index) => (

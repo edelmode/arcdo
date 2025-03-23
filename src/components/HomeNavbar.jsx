@@ -121,7 +121,7 @@ export default function HomeNavbar() {
       >
       {/* Hide Logo on Small Screens */}
         <img src="/public/pup-logo.png" alt="Website Logo" className="w-[2.75rem] h-[2.75rem] hidden lg:block" />
-        <p className="pl-3 font-extrabold hidden sm:block text-white">ARCDO</p>
+        <p className="pl-3 font-extrabold hidden sm:block text-white">ARCDO Dashboard</p>
 
 
 

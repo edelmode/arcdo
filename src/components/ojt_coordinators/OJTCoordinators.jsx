@@ -166,7 +166,7 @@ export default function OJTCoordinators() {
   
 
   return (
-    <div className="bg-gray-50 md:ml-[250px] mt-10 p-7 min-h-screen overflow-hidden">
+    <div className="bg-gray-50 md:ml-[300px] mt-10 p-7 min-h-screen overflow-hidden">
       <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold mb-4 mt-3 text-center sm:text-left">
         OJT Coordinators
       </h1>

@@ -185,7 +185,7 @@ export default function IndustryPartners() {
   };
 
   return (
-    <div className="bg-gray-50 md:ml-[250px] mt-10 p-7 min-h-screen overflow-auto">
+    <div className="bg-gray-50 md:ml-[300px] mt-10 p-7 min-h-screen overflow-auto">
       <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold mb-4 mt-3 text-center sm:text-left">
         Industry Partners
       </h1>

@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import LandingPage from './pages/LandingPage';
 import HTEDashboardPage from './pages/HTEDashboardPage';
-import MoasPage from './pages/MoasPage';
 import OJTCoordinatorsPage from './pages/OJTCoordinatorsPage';
 import IndustryPartnersPage from './pages/IndustryPartnersPage';
 import OverviewPage from './pages/OverviewPage';

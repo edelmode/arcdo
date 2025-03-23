@@ -273,7 +273,7 @@ const Overview = () => {
   }
 
   return (
-    <div className="bg-gray-50 md:ml-[250px] mt-10 p-7 min-h-screen overflow-auto">
+    <div className="bg-gray-50 md:ml-[300px] mt-10 p-7 min-h-screen overflow-auto">
       {loading ? (
         <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
           <div className="flex flex-col items-center">
