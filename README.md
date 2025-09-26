@@ -1,4 +1,4 @@
-# 🎓 ARCDO Dashboard (Full Stack)
+# ARCDO Dashboard (Full Stack)
 
 The **Alumni Relations and Career Development Office (ARCDO) Dashboard** is a full-stack web-based platform designed to improve data management for institutional records.  
 It centralizes information related to **Host Training Establishments (HTEs)**, **Memorandum of Agreements (MOAs)**, **On-the-Job Training (OJT) Coordinators**, and **Industry Partners (IPs)**.  
