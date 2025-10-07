@@ -19,9 +19,9 @@ It centralizes information related to **Host Training Establishments (HTEs)**, *
 - 🤝 **Industry Partners (IPs)** – Information on industry collaborators, also equipped with Add and Edit modals for record maintenance.  
 - 👤 **Account Modal** – Allows users to manage and edit their profile, including role management.
   > The system defines three distinct roles to control access levels effectively:
-      >🏆 Super Admin – Has full access to all system functionalities and can assign roles.
-      >🛠️ Admin – Can manage records and perform administrative actions.
-      >👤 User – Limited access for viewing and personal profile management.
+      > 🏆 Super Admin – Has full access to all system functionalities and can assign roles.
+      > 🛠️ Admin – Can manage records and perform administrative actions.
+      > 👤 User – Limited access for viewing and personal profile management.
 - ❌ Delete Entries – Admins can permanently remove outdated or incorrect entries, supported by a confirmation modal to prevent accidental deletions.
 - 📤 Export Data – Admins can export data from HTEs, IPs, and OJT Coordinators in CSV or PDF format for reporting and documentation purposes.
 - 🔄 Search and Refresh Features – Available across all pages for efficient record navigation and updates.
